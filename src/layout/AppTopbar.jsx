@@ -9,9 +9,8 @@ import React, {
 import { LayoutContext } from "./context/layoutcontext.jsx";
 import { LogOut } from "./LogOut";
 
-const AppTopbar = forwardRef((props, ref) => {
-  const { layoutConfig, layoutState, onMenuToggle, showProfileSidebar } =
-    useContext(LayoutContext);
+const AppTopbar = forwardRef(function AppTopbar(props, ref) {
+  const { onMenuToggle, showProfileSidebar } = useContext(LayoutContext);
   const menubuttonRef = useRef(null);
   const topbarmenuRef = useRef(null);
   const topbarmenubuttonRef = useRef(null);

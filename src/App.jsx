@@ -116,6 +116,14 @@ function App() {
                   </Layout>
                 }
               />
+              <Route
+                path="/prestataire/historique-reservations"
+                element={
+                  <Layout>
+                    <HistoriqueReservation />
+                  </Layout>
+                }
+              />
             </Route>
             <Route
               path="/login"

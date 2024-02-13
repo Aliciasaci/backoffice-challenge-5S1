@@ -13,7 +13,7 @@ import CrudEtablissement from "./pages/prestataire/CrudEtablissement";
 import LogIn from "./(full-page)/login/LogIn.jsx"; // Ensure the casing matches the actual file path
 import SimpleLayout from "./(full-page)/layout.jsx";
 import RequireAuth from "./pages/auth/RequireAuth.jsx";
-import PersistLogin from "./(full-page)/login/PersistLogin.jsx";
+// import PersistLogin from "./(full-page)/login/PersistLogin.jsx";
 import NotFoundPage from "./(full-page)/access/NotFoundPage.jsx";
 import HistoriqueReservation from "./pages/prestataire/HistoriqueReservation";
 

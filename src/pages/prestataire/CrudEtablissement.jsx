@@ -8,6 +8,8 @@ import { Toolbar } from 'primereact/toolbar';
 import { Badge } from 'primereact/badge';
 import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
+import { ToggleButton } from 'primereact/togglebutton';
+import TimeRangePicker from '../../components/TimeRangePicker';
 import axios from 'axios';
 
 const CrudEtablissement = () => {
@@ -18,8 +20,15 @@ const CrudEtablissement = () => {
         adresse: '',
         kbis: '',
         validation: false,
-        jours_ouverture: '',
-        horraires_ouverture: '',
+        horaires_ouverture: {
+            lundi: { checked: false, timeRange: { startTime: '', endTime: '' } },
+            mardi: { checked: false, timeRange: { startTime: '', endTime: '' } },
+            mercredi: { checked: false, timeRange: { startTime: '', endTime: '' } },
+            jeudi: { checked: false, timeRange: { startTime: '', endTime: '' } },
+            vendredi: { checked: false, timeRange: { startTime: '', endTime: '' } },
+            samedi: { checked: false, timeRange: { startTime: '', endTime: '' } },
+            dimanche: { checked: false, timeRange: { startTime: '', endTime: '' } },
+        },
     };
 
     const [etablissements, setEtablissements] = useState([]);
@@ -44,6 +53,11 @@ const CrudEtablissement = () => {
 
         fetchEtablissements();
     }, []);
+
+    const handleHorairesOuvertureChange = (updatedHorairesOuverture) => {
+        console.log(updatedHorairesOuverture);
+        setEtablissement({ ...etablissement, jours_ouverture: updatedHorairesOuverture });
+    };
 
     const openNew = () => {
         setEtablissement(emptyEtablissement);
@@ -73,7 +87,7 @@ const CrudEtablissement = () => {
                     kbis: etablissement.kbis,
                     validation: etablissement.validation,
                     jours_ouverture: etablissement.jours_ouverture,
-                    horraires_ouverture: etablissement.horraires_ouverture,
+                    horaires_ouverture: etablissement.horaires_ouverture,
                 },
                 {
                     headers: {
@@ -92,7 +106,7 @@ const CrudEtablissement = () => {
                     kbis: etablissement.kbis,
                     validation: etablissement.validation,
                     jours_ouverture: etablissement.jours_ouverture,
-                    horraires_ouverture: etablissement.horraires_ouverture,  
+                    horaires_ouverture: etablissement.horaires_ouverture,  
                 });
                 _etablissement = response['data'];
                 _etablissements.push(_etablissement);
@@ -105,6 +119,35 @@ const CrudEtablissement = () => {
             setEtablissement(emptyEtablissement);
         }
     };
+
+    const handleTimeRangeChange = (timeRange, day) => {
+        setEtablissement(prevState => ({
+            ...prevState,
+            horaires_ouverture: {
+                ...prevState.horaires_ouverture,
+                [day]: {
+                    ...prevState.horaires_ouverture[day],
+                    timeRange: timeRange
+                }
+            }
+        }));
+    };
+
+    const handleToggleChange = (day) => {
+        setEtablissement(prevState => ({
+            ...prevState,
+            horaires_ouverture: {
+                ...prevState.horaires_ouverture,
+                [day]: {
+                    ...prevState.horaires_ouverture[day],
+                    checked: !prevState.horaires_ouverture[day].checked,
+                    timeRange: (prevState.horaires_ouverture[day].timeRange.startTime !== ''
+                        ? prevState.horaires_ouverture[day].timeRange
+                        : { startTime: '09:00', endTime: '19:00' })
+                }
+            }
+        }));
+    }
 
     const editEtablissement = async (etablissement) => {
         setEtablissement({ ...etablissement });
@@ -204,7 +247,7 @@ const CrudEtablissement = () => {
         return (
             <>
                 <span className="p-column-title">Horraires</span>
-                {rowData.horraires_ouverture}
+                {rowData.horaires_ouverture}
             </>
         );
     };
@@ -267,11 +310,11 @@ const CrudEtablissement = () => {
                         <Column field="nom" header="Nom" sortable body={nomBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="adresse" header="Adresse" sortable body={adresseBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="validation" header="Validation" sortable body={validationBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column field="horraires_ouverture" header="Horraires ouverture" sortable body={horrairesBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="horaires_ouverture" header="Horraires ouverture" sortable body={horrairesBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
 
-                    <Dialog visible={etablissementDialog} style={{ width: '450px' }} header="Gestion etablissements" modal className="p-fluid" footer={etablissementDialogFooter(etablissement)} onHide={hideDialog}>
+                    <Dialog visible={etablissementDialog} style={{ width: '800px' }} header="Gestion etablissements" modal className="p-fluid" footer={etablissementDialogFooter(etablissement)} onHide={hideDialog}>
                         <div className="field">
                             <label htmlFor="nom">Nom</label>
                             <InputText id="nom" value={etablissement.nom} onChange={(e) => onInputChange(e, 'nom')} required autoFocus className={classNames({ 'p-invalid': submitted && !etablissement.nom })} />
@@ -283,10 +326,38 @@ const CrudEtablissement = () => {
                             {submitted && !etablissement.adresse && <small className="p-invalid">Champ obligatoire.</small>}
                         </div>
                         <div className="field">
-                            <label htmlFor="horraires_ouverture">Horraires d'ouverture</label>
-                            <InputText id="horraires_ouverture" value={etablissement.horraires_ouverture} onChange={(e) => onInputChange(e, 'horraires_ouverture')} required className={classNames({ 'p-invalid': submitted && !etablissement.horraires_ouverture })} />
-                            {submitted && !etablissement.horraires_ouverture && <small className="p-invalid">Champ obligatoire.</small>}
-                        </div>
+                            <label htmlFor="horaires_ouverture">Horraires d&apos;ouverture</label>
+                                {/* <InputText id="horaires_ouverture" value={etablissement.horaires_ouverture} onChange={(e) => onInputChange(e, 'horaires_ouverture')} required className={classNames({ 'p-invalid': submitted && !etablissement.horaires_ouverture })} />
+                                {submitted && !etablissement.horaires_ouverture && <small className="p-invalid">Champ obligatoire.</small>} */}
+                                <div className='grid'>
+                                    <div className='col-12'>
+                                        <div className='card'>
+                                            {Object.entries(etablissement.horaires_ouverture).map(([day, value]) => (
+                                                <div key={day} className="flex mb-3 justify-center" style={{ width: '100%', justifyContent: 'space-evenly' }}>
+                                                    <ToggleButton
+                                                        style={{ width: '125px' }}
+                                                        checked={value.checked}
+                                                        onLabel={day.charAt(0).toUpperCase() + day.slice(1)}
+                                                        offLabel={day.charAt(0).toUpperCase() + day.slice(1)}
+                                                        onChange={() => handleToggleChange(day)}
+                                                    />
+                                                    <div className='flex w-4/5 max-w-xs justify-center' style={{ width: '385px', justifyContent: 'center', alignItems: 'center' }}>
+                                                        {value.checked ? (
+                                                            <TimeRangePicker
+                                                                show={value.checked}
+                                                                day={day}
+                                                                onTimeRangeChange={(timeRange, selectedDay) => handleTimeRangeChange(timeRange, selectedDay)}
+                                                            />
+                                                        ) : (
+                                                            <span className='text-xl text-black font-bold'>Fermé</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                     </Dialog>
 
                     <Dialog visible={deleteEtablissementDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteEtablissementDialogFooter} onHide={hideDeleteEtablissementDialog}>

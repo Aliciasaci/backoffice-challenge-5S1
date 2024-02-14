@@ -9,7 +9,6 @@ import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
-
 const CrudCategory = () => {
     let emptyCategory = {
         id: null,
@@ -212,8 +211,8 @@ const CrudCategory = () => {
                         header={header}
                     >
                         <Column field="id" header="ID" sortable body={idBodyTemplate}></Column>
-                        <Column field="name" header="Nom" sortable body={nomBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="name" header="Nom" sortable body={nomBodyTemplate}></Column>
+                        <Column body={actionBodyTemplate}></Column>
                     </DataTable>
 
                     <Dialog visible={categoryDialog} style={{ width: '450px' }} header="Gestion catégories" modal className="p-fluid" footer={categoryDialogFooter(category)} onHide={hideDialog}>

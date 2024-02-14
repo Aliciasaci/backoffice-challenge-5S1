@@ -1,6 +1,6 @@
 import { Chart } from 'primereact/chart';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 const AdminDashboard = () => {
     const [nbEtablissements, setNbEtablissements] = useState(0);
@@ -8,6 +8,8 @@ const AdminDashboard = () => {
     const [nbPrestataires, setNbPrestataires] = useState(0);
     const [nbPrestations, setNbPrestations] = useState(0);
     const [nbDataLine, setNbDataLine] = useState([]);
+
+    const axiosPrivate = useAxiosPrivate();
 
     const lineData = {
         labels: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'June', 'Juillet'],
@@ -52,7 +54,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const countEtablissements = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/etablissements/');
+                const response = await axiosPrivate.get('/etablissements/');
                 const data = response['data']['hydra:member'];
                 setNbEtablissements(data.length);
             } catch (error) {
@@ -62,7 +64,7 @@ const AdminDashboard = () => {
         
         const countUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/users?roles=ROLE_USER');
+                const response = await axiosPrivate.get('/users?roles=ROLE_USER');
                 const data = response['data']['hydra:member'];
                 setNbUsers(data.length);
             }
@@ -73,7 +75,7 @@ const AdminDashboard = () => {
 
         const countPrestataires = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/users?roles=ROLE_PRESTATAIRE');
+                const response = await axiosPrivate.get('/users?roles=ROLE_PRESTATAIRE');
                 const data = response['data']['hydra:member'];
                 setNbPrestataires(data.length);
             }
@@ -84,7 +86,7 @@ const AdminDashboard = () => {
 
         const countPrestations = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/prestations/');
+                const response = await axiosPrivate.get('/prestations/');
                 const data = response['data']['hydra:member'];
                 setNbPrestations(data.length);
             }
@@ -111,7 +113,7 @@ const AdminDashboard = () => {
 
     const countUsersCreatedByMonth = async (month) => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/users?month=${month}`);
+            const response = await axiosPrivate.get(`/users?month=${month}`);
             const data = response['data']['hydra:member'];
             return data.length;
         } catch (error) {
@@ -267,7 +269,7 @@ const AdminDashboard = () => {
                         <h5>Notifications</h5>
                     </div>
 
-                    <span className="block text-600 font-medium mb-3">TODAY</span>
+                    {/* <span className="block text-600 font-medium mb-3">TODAY</span>
                     <ul className="p-0 mx-0 mt-0 mb-4 list-none">
                         <li className="flex align-items-center py-2 border-bottom-1 surface-border">
                             <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
@@ -314,7 +316,7 @@ const AdminDashboard = () => {
                                 <span className="text-700"> has posted a new questions about your product.</span>
                             </span>
                         </li>
-                    </ul>
+                    </ul> */}
                 </div>
             </div>
 

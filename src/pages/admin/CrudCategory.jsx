@@ -7,13 +7,15 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 const CrudCategory = () => {
     let emptyCategory = {
         id: null,
         name: '',
     };
+
+    const axiosPrivate = useAxiosPrivate();
 
     const [categories, setCategories] = useState([]);
     const [categoryDialog, setCategoryDialog] = useState(false);
@@ -27,7 +29,7 @@ const CrudCategory = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/categories');
+                const response = await axiosPrivate.get('/categories');
                 const data = response['data']['hydra:member'];
                 setCategories(data);
             } catch (error) {
@@ -59,7 +61,7 @@ const CrudCategory = () => {
             let _categories = [...categories];
             let _category = { ...category };
             if (category.id) {
-                const response = await axios.patch(`http://localhost:8000/api/categories/${category.id}`, {
+                const response = await axiosPrivate.patch(`/categories/${category.id}`, {
                     name: category.name,
                 },
                 {
@@ -72,7 +74,7 @@ const CrudCategory = () => {
 
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Catégorie modifiée', life: 3000 });
             } else {
-                const response = await axios.post('http://localhost:8000/api/categories', {
+                const response = await axiosPrivate.post('/categories', {
                     name: category.name,
                 });
                 _category = response['data'];
@@ -98,7 +100,7 @@ const CrudCategory = () => {
     };
 
     const deleteCategory = async (category) => {
-        const response = await axios.delete(`http://localhost:8000/api/categories/${category.id}`);
+        const response = await axiosPrivate.delete(`/categories/${category.id}`);
         let _categories = categories.filter((val) => val.id !== category.id);
         setCategories(_categories);
         setDeleteCategoryDialog(false);
@@ -209,8 +211,8 @@ const CrudCategory = () => {
                         header={header}
                     >
                         <Column field="id" header="ID" sortable body={idBodyTemplate}></Column>
-                        <Column field="name" header="Nom" sortable body={nomBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="name" header="Nom" sortable body={nomBodyTemplate}></Column>
+                        <Column body={actionBodyTemplate}></Column>
                     </DataTable>
 
                     <Dialog visible={categoryDialog} style={{ width: '450px' }} header="Gestion catégories" modal className="p-fluid" footer={categoryDialogFooter(category)} onHide={hideDialog}>
@@ -226,7 +228,7 @@ const CrudCategory = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {category && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{category.name}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{category.name}</b> ?
                                 </span>
                             )}
                         </div>

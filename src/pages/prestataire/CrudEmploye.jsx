@@ -6,6 +6,7 @@ import { FileUpload } from 'primereact/fileupload';
 import { InputText } from 'primereact/inputtext';
 import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
+import { Dropdown } from 'primereact/dropdown';
 import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
@@ -14,15 +15,13 @@ import useAuth from '../../hooks/useAuth';
 const CrudEmploye = () => {
     let emptyEmploye = {
         id: null,
-        etablissement: null,
         nom: '',
         prenom: '',
-        horraires_service: '',
-        image_name: '',
         description: '',
+        etablissement: null,
     };
     const { auth } = useAuth();
-    const userId = auth?.id;
+    const id = auth?.userId;
 
     const axiosPrivate = useAxiosPrivate();
 
@@ -30,6 +29,8 @@ const CrudEmploye = () => {
     const [employeDialog, setEmployeDialog] = useState(false);
     const [deleteEmployeDialog, setDeleteEmployeDialog] = useState(false);
     const [employe, setEmploye] = useState(emptyEmploye);
+    const [etablissements, setEtablissements] = useState([]);
+    const [selectedEtablissement, setSelectedEtablissement] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
@@ -38,9 +39,12 @@ const CrudEmploye = () => {
     useEffect(() => {
         const fetchEmployes = async () => {
             try {
-                const response = await axiosPrivate.get('/employes');
-                const data = response['data']['hydra:member'];
-                setEmployes(data);
+                const dataEtablissement = await fetchEtablissements();
+                for (let i = 0; i < dataEtablissement.length; i++) {
+                    const responseEmploye = await axiosPrivate.get(`/etablissements/${dataEtablissement[i].id}/employes`);
+                    const dataEmploye = responseEmploye['data']['hydra:member'];
+                    setEmployes(dataEmploye);
+                }
             } catch (error) {
                 console.log("error", error);
             }
@@ -48,6 +52,17 @@ const CrudEmploye = () => {
 
         fetchEmployes();
     }, []);
+
+    const fetchEtablissements = async () => {
+        try {
+            const response = await axiosPrivate.get(`/prestataires/${id}/etablissements`);
+            const data = response['data']['hydra:member'];
+            setEtablissements(data);
+            return data;
+        } catch (error) {
+            console.log("error", error);
+        }
+    }
 
     const openNew = () => {
         setEmploye(emptyEmploye);
@@ -66,18 +81,15 @@ const CrudEmploye = () => {
 
     const saveEmploye = async (employe) => {
         setSubmitted(true);
-        employe.roles = [employe.roles];
         if (employe.nom.trim()) {
             let _employes = [...employes];
             let _employe = { ...employe };
             if (employe.id) {
                 const response = await axiosPrivate.patch(`/employes/${employe.id}`, {
-                    etablissement: employe.etablissement_id,
                     nom: employe.nom,
                     prenom: employe.prenom,
-                    horraires_services: employe.horraires_services,
-                    image_name: employe.image_name,
                     description: employe.description,
+                    etablissement: selectedEtablissement,
                 },
                 {
                     headers: {
@@ -90,12 +102,10 @@ const CrudEmploye = () => {
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Employé modifié', life: 3000 });
             } else {
                 const response = await axiosPrivate.post('/employes', {
-                    etablissement: employe.etablissement_id,
                     nom: employe.nom,
                     prenom: employe.prenom,
-                    horraires_services: employe.horraires_services,
-                    image_name: employe.image_name,
-                    description: employe.description,  
+                    description: employe.description,
+                    etablissement: selectedEtablissement,  
                 });
                 _employe = response['data'];
                 _employes.push(_employe);
@@ -111,6 +121,9 @@ const CrudEmploye = () => {
 
     const editEmploye = async (employe) => {
         setEmploye({ ...employe });
+        let etabs = await fetchEtablissements();
+        let etab = etabs.find((el) => el.id === employe.etablissement.id);
+        setSelectedEtablissement(etab);
         setEmployeDialog(true);
     };
 
@@ -138,6 +151,18 @@ const CrudEmploye = () => {
         _employe[`${name}`] = val;
 
         setEmploye(_employe);
+    };
+
+    const onSelectChange = (e, name) => {
+        const val = e.value.id;
+        let _employe = { ...employe };
+        _employe[`${name}`] = val;
+        setEmploye(_employe);
+
+        if (name === 'etablissement_id') {
+            let etab = etablissements.find((el) => el.id === val);
+            setSelectedEtablissement(etab);
+        }  
     };
 
     const leftToolbarTemplate = () => {
@@ -195,23 +220,23 @@ const CrudEmploye = () => {
         );
     };
 
-    const horrairesBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Horraires service</span>
-                {rowData.horraires_services}
-            </>
-        );
-    };
+    // const horrairesBodyTemplate = (rowData) => {
+    //     return (
+    //         <>
+    //             <span className="p-column-title">Horraires service</span>
+    //             {rowData.horraires_services}
+    //         </>
+    //     );
+    // };
 
-    const imageBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Image</span>
-                {rowData.image_name}
-            </>
-        );
-    };
+    // const imageBodyTemplate = (rowData) => {
+    //     return (
+    //         <>
+    //             <span className="p-column-title">Image</span>
+    //             {rowData.image_name}
+    //         </>
+    //     );
+    // };
 
     const descriptionBodyTemplate = (rowData) => {
         return (
@@ -277,11 +302,11 @@ const CrudEmploye = () => {
                         header={header}
                     >
                         <Column field="id" header="ID" sortable body={idBodyTemplate}></Column>
-                        <Column field="etablissement_id" header="Etablissement" sortable body={idEtablissementBodyTemplate}></Column>
+                        <Column field="etablissement" header="Etablissement" sortable body={idEtablissementBodyTemplate}></Column>
                         <Column field="nom" header="Nom" sortable body={nomBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="prenom" header="Prénom" sortable body={prenomBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column field="horraires_service" header="Horraires service" sortable body={horrairesBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column field="image_name" header="Image" sortable body={imageBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        {/* <Column field="horraires_service" header="Horraires service" sortable body={horrairesBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="image_name" header="Image" sortable body={imageBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column> */}
                         <Column field="description" header="Description" sortable body={descriptionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
@@ -298,6 +323,10 @@ const CrudEmploye = () => {
                             {submitted && !employe.prenom && <small className="p-invalid">Champ obligatoire.</small>}
                         </div>
                         <div className="field">
+                            <label htmlFor="etablissement_id">Etablissement</label>
+                            <Dropdown id="dropdown" options={etablissements} value={selectedEtablissement} onChange={(e) => onSelectChange(e, 'etablissement_id')} optionLabel="nom"></Dropdown>
+                        </div>
+                        {/* <div className="field">
                             <label htmlFor="horraires_service">Horraires service</label>
                             <InputText id="horraires_service" value={employe.horraires_service} onChange={(e) => onInputChange(e, 'horraires_service')} required className={classNames({ 'p-invalid': submitted && !employe.horraires_service })} />
                             {submitted && !employe.horraires_service && <small className="p-invalid">Champ obligatoire.</small>}
@@ -306,10 +335,10 @@ const CrudEmploye = () => {
                             <label htmlFor="image_name">Image</label>
                             <InputText id="image_name" value={employe.image_name} onChange={(e) => onInputChange(e, 'image_name')} required className={classNames({ 'p-invalid': submitted && !employe.image_name })} />
                             {submitted && !employe.image_name && <small className="p-invalid">Champ obligatoire.</small>}
-                        </div>
+                        </div> */}
                         <div className="field">
                             <label htmlFor="description">Description</label>
-                            <InputText id="description" value={employe.horraires_service} onChange={(e) => onInputChange(e, 'description')} required className={classNames({ 'p-invalid': submitted && !employe.description })} />
+                            <InputText id="description" value={employe.description} onChange={(e) => onInputChange(e, 'description')} required className={classNames({ 'p-invalid': submitted && !employe.description })} />
                             {submitted && !employe.description && <small className="p-invalid">Champ obligatoire.</small>}
                         </div>
 
@@ -321,7 +350,7 @@ const CrudEmploye = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {employe && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{employe.nom} {employe.prenom}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{employe.nom} {employe.prenom}</b> ?
                                 </span>
                             )}
                         </div>

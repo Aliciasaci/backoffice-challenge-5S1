@@ -5,20 +5,28 @@ import { InputText } from 'primereact/inputtext';
 import { Toolbar } from 'primereact/toolbar';
 import { Badge } from 'primereact/badge';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import useAuth from '../../hooks/useAuth';
 
 const HistoriqueReservation = () => {
     const [reservations, setReservations] = useState([]);
     const [globalFilter, setGlobalFilter] = useState(null);
     const dt = useRef(null);
 
+    const { auth } = useAuth();
+    const id = auth?.userId;
+    const axiosPrivate = useAxiosPrivate();
+
     useEffect(() => {
         const fetchReservations = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/reservations');
+                const response = await axiosPrivate.get(`/prestataires/${id}/etablissements`);
                 const data = response['data']['hydra:member'];
-                console.log("data", data);
-                setReservations(data);
+                for (let i = 0; i < data.length; i++) {
+                    const responseReservation = await axiosPrivate.get(`/etablissements/${data[i].id}/reservations`);
+                    const dataReservation = responseReservation['data']['hydra:member'];
+                    setReservations(dataReservation);
+                }
             } catch (error) {
                 console.log("error", error);
             }
@@ -137,7 +145,7 @@ const HistoriqueReservation = () => {
                         <Column field="employe" header="Employé" sortable body={employeBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="status" header="Statut" sortable body={statusBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="crenau" header="Créneau" sortable body={creneauBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column field="duree" header="Durée" sortable body={dureeBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        <Column field="duree" header="Durée" sortable body={dureeBodyTemplate} headerStyle={{ minWidth: '5rem' }}></Column>
                         <Column field="jour" header="Jour" sortable body={jourBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
                 </div>

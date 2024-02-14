@@ -1,240 +1,199 @@
-import { Chart } from "primereact/chart";
-import { useEffect, useState } from "react";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { ProgressSpinner } from "primereact/progressspinner";
-
-const lineData = {
-  labels: ["Janvier", "Février", "Mars", "Avril", "Mai", "June", "Juillet"],
-  datasets: [
-    {
-      label: "Réservations effectuées",
-      data: [],
-      fill: false,
-      borderColor: "#007bff",
-    },
-    {
-      label: "Réservations annulées",
-      data: [],
-      fill: false,
-      borderColor: "#dc3545",
-    },
-  ],
-};
+import { Chart } from 'primereact/chart';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import useAuth from '../../hooks/useAuth';
 
 const PrestataireDashboard = () => {
-  const [nbEtablissements, setNbEtablissements] = useState(0);
-  const [nbEmployes, setNbEmployes] = useState(0);
-  const [nbPrestations, setNbPrestations] = useState(0);
-  const [nbReservations, setNbReservations] = useState(0);
-  const axiosPrivate = useAxiosPrivate();
-  const [isChartLoading, setChartIsLoading] = useState(false);
+    const [nbEtablissements, setNbEtablissements] = useState(0);
+    const [nbEmployes, setNbEmployes] = useState(0);
+    const [nbPrestations, setNbPrestations] = useState(0);
+    const [nbReservations, setNbReservations] = useState(0);
+    const [nbDataLine, setNbDataLine] = useState([]);
+    const [nbDataLine2, setNbDataLine2] = useState([]);
 
-  const lineOptions = {
-    plugins: {
-      legend: {
-        labels: {
-          color: "#495057",
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          color: "#495057",
-        },
-        grid: {
-          color: "#ebedef",
-        },
-      },
-      y: {
-        ticks: {
-          color: "#495057",
-        },
-        grid: {
-          color: "#ebedef",
-        },
-      },
-    },
-  };
+    const { auth } = useAuth();
+    const id = auth?.userId;
 
-  useEffect(() => {
-    const countEtablissements = async () => {
-      try {
-        const response = await axiosPrivate.get("/etablissements");
-        const data = response["data"]["hydra:member"];
-        setNbEtablissements(data.length);
-      } catch (error) {
-        console.log(error);
-      }
+    const lineData = {
+        labels: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'June', 'Juillet'],
+        datasets: [
+            {
+                label: 'Réservations effectuées',
+                data: nbDataLine,
+                fill: false,
+                borderColor: '#007bff'
+            },
+            {
+                label: 'Réservations annulées',
+                data: nbDataLine2,
+                fill: false,
+                borderColor: '#dc3545'
+            }
+        ]
     };
-
-    const countEmployes = async () => {
-      try {
-        const response = await axiosPrivate.get("/employes");
-        const data = response["data"]["hydra:member"];
-        setNbEmployes(data.length);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const countPrestations = async () => {
-      try {
-        const response = await axiosPrivate.get("/prestations");
-        const data = response["data"]["hydra:member"];
-        setNbPrestations(data.length);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const countReservations = async () => {
-      try {
-        const response = await axiosPrivate.get("/reservations");
-        const data = response["data"]["hydra:member"];
-        setNbReservations(data.length);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const chart = async () => {
-      setChartIsLoading(true);
-      let storedData = localStorage.getItem("chartData");
-      if (storedData) {
-        lineData.datasets = JSON.parse(storedData);
-      } else {
-        for (let i = 1; i <= 7; i++) {
-          const nbReservationsByMonth = await countReservationsByMonth(i);
-          lineData.datasets[0].data.push(nbReservationsByMonth);
-
-          const nbReservationsCanceledByMonth =
-            await countReservationsCanceledByMonth(i);
-          lineData.datasets[1].data.push(nbReservationsCanceledByMonth);
+    
+    const lineOptions = {
+        plugins: {
+            legend: {
+                labels: {
+                    color: '#495057'
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#495057'
+                },
+                grid: {
+                    color: '#ebedef'
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#495057'
+                },
+                grid: {
+                    color: '#ebedef'
+                }
+            }
         }
-        localStorage.setItem("chartData", JSON.stringify(lineData.datasets));
-      }
-      setChartIsLoading(false);
     };
 
-    countEtablissements();
-    countEmployes();
-    countPrestations();
-    countReservations();
-    chart();
-  }, []);
+    useEffect(() => {
+        const countEtablissements = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/api/prestataires/${id}/etablissements`);
+                const data = response['data']['hydra:member'];
+                for (let i = 0; i < data.length; i++) {
+                    const responseEmploye = await axios.get(`http://localhost:8000/api/etablissements/${data[i].id}/employes`);
+                    const dataEmploye = responseEmploye['data']['hydra:member'];
+                    console.log("employe", dataEmploye);
+                    for (let j = 0; j < dataEmploye.length; j++) {
+                        const responseReservation = await axios.get(`http://localhost:8000/api/employes/${dataEmploye[j].id}/reservations`);
+                        const dataReservation = responseReservation['data']['hydra:member'];
+                        console.log("resa", dataReservation);
+                        setNbReservations(nbReservations + dataReservation.length);
+                    }
+                    setNbEmployes(nbEmployes + dataEmploye.length);
 
-  const countReservationsByMonth = async (month) => {
-    try {
-      const response = await axiosPrivate.get(`/reservations?month=${month}`);
-      const data = response["data"]["hydra:member"];
-      return data.length;
-    } catch (error) {
-      console.log(error);
+                    const responsePrestation = await axios.get(`http://localhost:8000/api/etablissements/${data[i].id}/prestations`);
+                    const dataPrestation = responsePrestation['data']['hydra:member'];
+                    setNbPrestations(nbPrestations + dataPrestation.length);
+                    
+                }
+
+                setNbEtablissements(data.length);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        const chart = async () => {
+            let dataReservationsByMonth = [];
+            let dataReservationsCanceledByMonth = [];
+            for (let i = 1; i <= 7; i++) {
+                const nbReservationsByMonth = await countReservationsByMonth(i);
+                dataReservationsByMonth.push(nbReservationsByMonth);
+
+                const nbReservationsCanceledByMonth = await countReservationsCanceledByMonth(i);
+                dataReservationsCanceledByMonth.push(nbReservationsCanceledByMonth);
+            }
+            setNbDataLine(dataReservationsByMonth);
+            setNbDataLine2(dataReservationsCanceledByMonth);
+        }
+
+        countEtablissements();
+
+        chart();
+    }, []);
+
+    const countReservationsByMonth = async (month) => {
+        try {
+            const response = await axios.get(`http://localhost:8000/api/reservations?month=${month}`);
+            const data = response['data']['hydra:member'];
+            return data.length;
+        } catch (error) {
+            console.log(error);
+        }
     }
-  };
 
-  const countReservationsCanceledByMonth = async (month) => {
-    try {
-      const response = await axiosPrivate.get(
-        `/reservations?month=${month}&status=canceled`
-      );
-      const data = response["data"]["hydra:member"];
-      return data.length;
-    } catch (error) {
-      console.log(error);
+    const countReservationsCanceledByMonth = async (month) => {
+        try {
+            const response = await axios.get(`http://localhost:8000/api/reservations?month=${month}&status=canceled`);
+            const data = response['data']['hydra:member'];
+            return data.length;
+        } catch (error) {
+            console.log(error);
+        }
     }
-  };
+    
 
-  return (
-    <div className="grid">
-      <div className="col-12 lg:col-6 xl:col-3">
-        <div className="card mb-0">
-          <div className="flex justify-content-between mb-3">
-            <div>
-              <span className="block text-500 font-medium mb-3">
-                Etablissements
-              </span>
-              <div className="text-900 font-medium text-xl">
-                {nbEtablissements}
-              </div>
+    return (
+        <div className="grid">
+            <div className="col-12 lg:col-6 xl:col-3">
+                <div className="card mb-0">
+                    <div className="flex justify-content-between mb-3">
+                        <div>
+                            <span className="block text-500 font-medium mb-3">Etablissements</span>
+                            <div className="text-900 font-medium text-xl">{nbEtablissements}</div>
+                        </div>
+                        <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                            <i className="pi pi-building text-blue-500 text-xl" />
+                        </div>
+                    </div>
+                    <span className="text-green-500 font-medium"></span>
+                    <span className="text-500"></span>
+                </div>
             </div>
-            <div
-              className="flex align-items-center justify-content-center bg-blue-100 border-round"
-              style={{ width: "2.5rem", height: "2.5rem" }}
-            >
-              <i className="pi pi-building text-blue-500 text-xl" />
+            <div className="col-12 lg:col-6 xl:col-3">
+                <div className="card mb-0">
+                    <div className="flex justify-content-between mb-3">
+                        <div>
+                            <span className="block text-500 font-medium mb-3">Employés</span>
+                            <div className="text-900 font-medium text-xl">{nbEmployes}</div>
+                        </div>
+                        <div className="flex align-items-center justify-content-center bg-orange-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                            <i className="pi pi-user text-orange-500 text-xl" />
+                        </div>
+                    </div>
+                    <span className="text-green-500 font-medium"></span>
+                    <span className="text-500"></span>
+                </div>
             </div>
-          </div>
-          <span className="text-green-500 font-medium"></span>
-          <span className="text-500"></span>
-        </div>
-      </div>
-      <div className="col-12 lg:col-6 xl:col-3">
-        <div className="card mb-0">
-          <div className="flex justify-content-between mb-3">
-            <div>
-              <span className="block text-500 font-medium mb-3">Employés</span>
-              <div className="text-900 font-medium text-xl">{nbEmployes}</div>
+            <div className="col-12 lg:col-6 xl:col-3">
+                <div className="card mb-0">
+                    <div className="flex justify-content-between mb-3">
+                        <div>
+                            <span className="block text-500 font-medium mb-3">Prestations</span>
+                            <div className="text-900 font-medium text-xl">{nbPrestations}</div>
+                        </div>
+                        <div className="flex align-items-center justify-content-center bg-cyan-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                            <i className="pi pi-inbox text-cyan-500 text-xl" />
+                        </div>
+                    </div>
+                    <span className="text-green-500 font-medium"></span>
+                    <span className="text-500"></span>
+                </div>
             </div>
-            <div
-              className="flex align-items-center justify-content-center bg-orange-100 border-round"
-              style={{ width: "2.5rem", height: "2.5rem" }}
-            >
-              <i className="pi pi-user text-orange-500 text-xl" />
+            <div className="col-12 lg:col-6 xl:col-3">
+                <div className="card mb-0">
+                    <div className="flex justify-content-between mb-3">
+                        <div>
+                            <span className="block text-500 font-medium mb-3">Réservations</span>
+                            <div className="text-900 font-medium text-xl">{nbReservations}</div>
+                        </div>
+                        <div className="flex align-items-center justify-content-center bg-purple-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
+                            <i className="pi pi-shopping-cart text-purple-500 text-xl" />
+                        </div>
+                    </div>
+                    <span className="text-green-500 font-medium"></span>
+                    <span className="text-500"></span>
+                </div>
             </div>
-          </div>
-          <span className="text-green-500 font-medium"></span>
-          <span className="text-500"></span>
-        </div>
-      </div>
-      <div className="col-12 lg:col-6 xl:col-3">
-        <div className="card mb-0">
-          <div className="flex justify-content-between mb-3">
-            <div>
-              <span className="block text-500 font-medium mb-3">
-                Prestations
-              </span>
-              <div className="text-900 font-medium text-xl">
-                {nbPrestations}
-              </div>
-            </div>
-            <div
-              className="flex align-items-center justify-content-center bg-cyan-100 border-round"
-              style={{ width: "2.5rem", height: "2.5rem" }}
-            >
-              <i className="pi pi-inbox text-cyan-500 text-xl" />
-            </div>
-          </div>
-          <span className="text-green-500 font-medium"></span>
-          <span className="text-500"></span>
-        </div>
-      </div>
-      <div className="col-12 lg:col-6 xl:col-3">
-        <div className="card mb-0">
-          <div className="flex justify-content-between mb-3">
-            <div>
-              <span className="block text-500 font-medium mb-3">
-                Réservations
-              </span>
-              <div className="text-900 font-medium text-xl">
-                {nbReservations}
-              </div>
-            </div>
-            <div
-              className="flex align-items-center justify-content-center bg-purple-100 border-round"
-              style={{ width: "2.5rem", height: "2.5rem" }}
-            >
-              <i className="pi pi-shopping-cart text-purple-500 text-xl" />
-            </div>
-          </div>
-          <span className="text-green-500 font-medium"></span>
-          <span className="text-500"></span>
-        </div>
-      </div>
 
-      <div className="col-12 xl:col-6">
-        {/* <div className="card">
+            <div className="col-12 xl:col-6">
+                {/* <div className="card">
                     <div className="flex justify-content-between align-items-center mb-5">
                         <h5>Top prestations réservées</h5>
                     </div>
@@ -313,83 +272,72 @@ const PrestataireDashboard = () => {
                         </li>
                     </ul>
                 </div> */}
-        <div className="card">
-          <div className="flex align-items-center justify-content-between mb-4">
-            <h5>Notifications</h5>
-          </div>
+                <div className="card">
+                    <div className="flex align-items-center justify-content-between mb-4">
+                        <h5>Notifications</h5>
+                    </div>
 
-          <span className="block text-600 font-medium mb-3">TODAY</span>
-          <ul className="p-0 mx-0 mt-0 mb-4 list-none">
-            <li className="flex align-items-center py-2 border-bottom-1 surface-border">
-              <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                <i className="pi pi-dollar text-xl text-blue-500" />
-              </div>
-              <span className="text-900 line-height-3">
-                Richard Jones
-                <span className="text-700">
-                  {" "}
-                  has purchased a blue t-shirt for{" "}
-                  <span className="text-blue-500">79$</span>
-                </span>
-              </span>
-            </li>
-            <li className="flex align-items-center py-2">
-              <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
-                <i className="pi pi-download text-xl text-orange-500" />
-              </div>
-              <span className="text-700 line-height-3">
-                Your request for withdrawal of{" "}
-                <span className="text-blue-500 font-medium">2500$</span> has
-                been initiated.
-              </span>
-            </li>
-          </ul>
+                    <span className="block text-600 font-medium mb-3">TODAY</span>
+                    <ul className="p-0 mx-0 mt-0 mb-4 list-none">
+                        <li className="flex align-items-center py-2 border-bottom-1 surface-border">
+                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                                <i className="pi pi-dollar text-xl text-blue-500" />
+                            </div>
+                            <span className="text-900 line-height-3">
+                                Richard Jones
+                                <span className="text-700">
+                                    {' '}
+                                    has purchased a blue t-shirt for <span className="text-blue-500">79$</span>
+                                </span>
+                            </span>
+                        </li>
+                        <li className="flex align-items-center py-2">
+                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-orange-100 border-circle mr-3 flex-shrink-0">
+                                <i className="pi pi-download text-xl text-orange-500" />
+                            </div>
+                            <span className="text-700 line-height-3">
+                                Your request for withdrawal of <span className="text-blue-500 font-medium">2500$</span> has been initiated.
+                            </span>
+                        </li>
+                    </ul>
 
-          <span className="block text-600 font-medium mb-3">YESTERDAY</span>
-          <ul className="p-0 m-0 list-none">
-            <li className="flex align-items-center py-2 border-bottom-1 surface-border">
-              <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                <i className="pi pi-dollar text-xl text-blue-500" />
-              </div>
-              <span className="text-900 line-height-3">
-                Keyser Wick
-                <span className="text-700">
-                  {" "}
-                  has purchased a black jacket for{" "}
-                  <span className="text-blue-500">59$</span>
-                </span>
-              </span>
-            </li>
-            <li className="flex align-items-center py-2 border-bottom-1 surface-border">
-              <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
-                <i className="pi pi-question text-xl text-pink-500" />
-              </div>
-              <span className="text-900 line-height-3">
-                Jane Davis
-                <span className="text-700">
-                  {" "}
-                  has posted a new questions about your product.
-                </span>
-              </span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="col-12 xl:col-6">
-        <div className="card">
-          <h5>Stat réservations</h5>
-          {isChartLoading ? (
-            <div className="flex align-items-center justify-content-center h-10rem">
-              <ProgressSpinner />
+                    <span className="block text-600 font-medium mb-3">YESTERDAY</span>
+                    <ul className="p-0 m-0 list-none">
+                        <li className="flex align-items-center py-2 border-bottom-1 surface-border">
+                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                                <i className="pi pi-dollar text-xl text-blue-500" />
+                            </div>
+                            <span className="text-900 line-height-3">
+                                Keyser Wick
+                                <span className="text-700">
+                                    {' '}
+                                    has purchased a black jacket for <span className="text-blue-500">59$</span>
+                                </span>
+                            </span>
+                        </li>
+                        <li className="flex align-items-center py-2 border-bottom-1 surface-border">
+                            <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-pink-100 border-circle mr-3 flex-shrink-0">
+                                <i className="pi pi-question text-xl text-pink-500" />
+                            </div>
+                            <span className="text-900 line-height-3">
+                                Jane Davis
+                                <span className="text-700"> has posted a new questions about your product.</span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          ) : (
-            <Chart type="line" data={lineData} options={lineOptions} />
-          )}
+
+            <div className="col-12 xl:col-6">
+                <div className="card">
+                    <h5>Stat réservations</h5>
+                    <Chart type="line" data={lineData} options={lineOptions} />
+                </div>
+
+                
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    )
 };
 
 export default PrestataireDashboard;

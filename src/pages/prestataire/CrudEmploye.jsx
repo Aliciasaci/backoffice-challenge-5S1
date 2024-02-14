@@ -8,7 +8,8 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import useAuth from '../../hooks/useAuth';
 
 const CrudEmploye = () => {
     let emptyEmploye = {
@@ -20,6 +21,10 @@ const CrudEmploye = () => {
         image_name: '',
         description: '',
     };
+    const { auth } = useAuth();
+    const userId = auth?.id;
+
+    const axiosPrivate = useAxiosPrivate();
 
     const [employes, setEmployes] = useState([]);
     const [employeDialog, setEmployeDialog] = useState(false);
@@ -33,9 +38,8 @@ const CrudEmploye = () => {
     useEffect(() => {
         const fetchEmployes = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/employes');
+                const response = await axiosPrivate.get('/employes');
                 const data = response['data']['hydra:member'];
-                console.log("fetchEmploye", data);
                 setEmployes(data);
             } catch (error) {
                 console.log("error", error);
@@ -67,7 +71,7 @@ const CrudEmploye = () => {
             let _employes = [...employes];
             let _employe = { ...employe };
             if (employe.id) {
-                const response = await axios.patch(`http://localhost:8000/api/employes/${employe.id}`, {
+                const response = await axiosPrivate.patch(`/employes/${employe.id}`, {
                     etablissement: employe.etablissement_id,
                     nom: employe.nom,
                     prenom: employe.prenom,
@@ -85,7 +89,7 @@ const CrudEmploye = () => {
 
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Employé modifié', life: 3000 });
             } else {
-                const response = await axios.post('http://localhost:8000/api/employes', {
+                const response = await axiosPrivate.post('/employes', {
                     etablissement: employe.etablissement_id,
                     nom: employe.nom,
                     prenom: employe.prenom,
@@ -116,7 +120,7 @@ const CrudEmploye = () => {
     };
 
     const deleteEmploye = async (employe) => {
-        const response = axios.delete(`http://localhost:8000/api/employes/${employe.id}`);
+        const response = axiosPrivate.delete(`/employes/${employe.id}`);
         let _employes = employes.filter((val) => val.id !== employe.id);
         setEmployes(_employes);
         setDeleteEmployeDialog(false);

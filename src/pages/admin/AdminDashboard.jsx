@@ -2,24 +2,25 @@ import { Chart } from 'primereact/chart';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const lineData = {
-    labels: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'June', 'Juillet'],
-    datasets: [
-        {
-            label: 'Utlisateurs crées',
-            data: [],
-            fill: false,
-            borderColor: '#007bff'
-        },
-    ]
-};
-
 const AdminDashboard = () => {
     const [nbEtablissements, setNbEtablissements] = useState(0);
     const [nbUsers, setNbUsers] = useState(0);
     const [nbPrestataires, setNbPrestataires] = useState(0);
     const [nbPrestations, setNbPrestations] = useState(0);
-    
+    const [nbDataLine, setNbDataLine] = useState([]);
+
+    const lineData = {
+        labels: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'June', 'Juillet'],
+        datasets: [
+            {
+                label: 'Utlisateurs crées',
+                data: nbDataLine,
+                fill: false,
+                borderColor: '#007bff'
+            },
+        ]
+    };
+
     const lineOptions = {
         plugins: {
             legend: {
@@ -92,19 +93,19 @@ const AdminDashboard = () => {
             }
         }
 
+        const chart = async () => {
+            let dataUsersCreatedByMonth = [];
+            for (let i = 1; i <= 7; i++) {
+                const nbUsersCreatedByMonth = await countUsersCreatedByMonth(i);
+                dataUsersCreatedByMonth.push(nbUsersCreatedByMonth);
+            }
+            setNbDataLine(dataUsersCreatedByMonth);
+        }
+
         countEtablissements();
         countUsers();
         countPrestataires();
         countPrestations();
-
-        const chart = async () => {
-            for (let i = 1; i <= 7; i++) {
-                const nbUsersCreatedByMonth = await countUsersCreatedByMonth(i);
-                lineData.datasets[0].data.push(nbUsersCreatedByMonth);
-
-            }
-        }
-
         chart();
     }, []);
 

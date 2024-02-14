@@ -62,6 +62,11 @@ const AppMenu = () => {
           icon: "pi pi-fw pi-table",
           to: "/prestataire/prestations",
         },
+        {
+          label: "Historique Réservations",
+          icon: "pi pi-fw pi-table",
+          to: "/prestataire/historique-reservations",
+        },
       ],
     });
   }

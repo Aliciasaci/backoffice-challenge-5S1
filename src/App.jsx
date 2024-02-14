@@ -13,18 +13,20 @@ import CrudEtablissement from "./pages/prestataire/CrudEtablissement";
 import LogIn from "./(full-page)/login/LogIn.jsx"; // Ensure the casing matches the actual file path
 import SimpleLayout from "./(full-page)/layout.jsx";
 import RequireAuth from "./pages/auth/RequireAuth.jsx";
+import PersistLogin from "./(full-page)/login/PersistLogin.jsx";
 import NotFoundPage from "./(full-page)/access/NotFoundPage.jsx";
 import HistoriqueReservation from "./pages/prestataire/HistoriqueReservation";
-import { DashboardWrapper } from "./pages/DashboardWrapper.jsx";
-import PersistLogin from "./(full-page)/login/PersistLogin.jsx";
+import { LoadScript } from "@react-google-maps/api";
+
 
 function App() {
+  const API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY;
   return (
     <>
-      <Router>
-        <LayoutProvider>
-          <Routes>
-            <Route element={<PersistLogin />}>
+      <LoadScript googleMapsApiKey={API_KEY} libraries={["places"]}>
+        <Router>
+          <LayoutProvider>
+            <Routes>
               <Route
                 element={
                   <RequireAuth
@@ -36,7 +38,7 @@ function App() {
                   path="/"
                   element={
                     <Layout>
-                      <DashboardWrapper />
+                      <AdminDashboard />
                     </Layout>
                   }
                 />
@@ -119,26 +121,26 @@ function App() {
                   }
                 />
               </Route>
-            </Route>
-            <Route
-              path="/login"
-              element={
-                <SimpleLayout>
-                  <LogIn />
-                </SimpleLayout>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <SimpleLayout>
-                  <NotFoundPage />
-                </SimpleLayout>
-              }
-            />
-          </Routes>
-        </LayoutProvider>
-      </Router>
+              <Route
+                path="/login"
+                element={
+                  <SimpleLayout>
+                    <LogIn />
+                  </SimpleLayout>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <SimpleLayout>
+                    <NotFoundPage />
+                  </SimpleLayout>
+                }
+              />
+            </Routes>
+          </LayoutProvider>
+        </Router>
+      </LoadScript>
     </>
   );
 }

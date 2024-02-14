@@ -37,7 +37,7 @@ const CrudUser = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axiosPrivate.get('/users');
+                const response = await axiosPrivate.get(`/users`);
                 const data = response['data']['hydra:member'];
                 setUsers(data);
             } catch (error) {
@@ -97,10 +97,14 @@ const CrudUser = () => {
                     plainPassword: user.password,
                     roles: user.roles,  
                 });
-                _user = response['data'];
-                _users.push(_user);
+                if (response.status === 201) {
+                    _user = response['data'];
+                    _users.push(_user);
 
-                toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Utilisateur crée', life: 3000 });
+                    toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Utilisateur crée', life: 3000 });
+                } else if (response.status === 422) {
+                    toast.current.show({ severity: 'error', summary: 'Erreur', detail: 'Email déjà existé', life: 3000 });
+                }
             }
 
             setUsers(_users);
@@ -135,7 +139,9 @@ const CrudUser = () => {
 
     const onRoleChange = (e) => {
         let _user = { ...user };
-        _user['roles'] = e.value;
+        let role = [e.value];
+        console.log("role", role);
+        _user['roles'] = role;
         setUser(_user);
     };
 
@@ -241,8 +247,8 @@ const CrudUser = () => {
 
     const userDialogFooter = (user) => (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={() => saveUser(user)} />
+            <Button label="Annuler" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Valider" icon="pi pi-check" text onClick={() => saveUser(user)} />
         </>
     );
 

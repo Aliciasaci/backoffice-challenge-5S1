@@ -73,6 +73,13 @@ const AppMenu = () => {
 
   return (
     <MenuProvider>
+      <span style={{ fontSize: '20px',
+      color: '#8B5CF6',
+      fontWeight: 'bold',
+      textAlign: 'center'}}>
+        Bienvenue {auth?.nom} !
+      </span>
+      
       <ul className="layout-menu">
         {model.map((item, i) => {
           return !item.seperator ? (

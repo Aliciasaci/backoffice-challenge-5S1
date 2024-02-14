@@ -17,8 +17,6 @@ const AdminEtablissement = () => {
         adresse: '',
         kbis: '',
         validation: false,
-        jours_ouverture: '',
-        horraires_ouverture: '',
     };
 
     const [etablissements, setEtablissements] = useState([]);
@@ -182,7 +180,6 @@ const AdminEtablissement = () => {
                         <Column field="nom" header="Nom" sortable body={nomBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="adresse" header="Adresse" sortable body={adresseBodyTemplate} headerStyle={{ minWidth: '15rem' }}></Column>
                         <Column field="validation" header="Validation" sortable body={validationBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column field="horraires_ouverture" header="Horraires ouverture" sortable body={horrairesBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
 

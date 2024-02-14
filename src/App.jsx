@@ -16,126 +16,130 @@ import RequireAuth from "./pages/auth/RequireAuth.jsx";
 import NotFoundPage from "./(full-page)/access/NotFoundPage.jsx";
 import HistoriqueReservation from "./pages/prestataire/HistoriqueReservation";
 import { DashboardWrapper } from "./pages/DashboardWrapper.jsx";
+import { LoadScript } from "@react-google-maps/api";
 
 function App() {
+  const API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY;
   return (
     <>
-      <Router>
-        <LayoutProvider>
-          <Routes>
-            <Route
-              element={
-                <RequireAuth
-                  allowedRoles={["ROLE_ADMIN", "ROLE_PRESTATAIRE"]}
+      <LoadScript googleMapsApiKey={API_KEY} libraries={["places"]}>
+        <Router>
+          <LayoutProvider>
+            <Routes>
+              <Route
+                element={
+                  <RequireAuth
+                    allowedRoles={["ROLE_ADMIN", "ROLE_PRESTATAIRE"]}
+                  />
+                }
+              >
+                <Route
+                  path="/"
+                  element={
+                    <Layout>
+                      <DashboardWrapper />
+                    </Layout>
+                  }
                 />
-              }
-            >
+              </Route>
+              <Route element={<RequireAuth allowedRoles={["ROLE_ADMIN"]} />}>
+                <Route
+                  path="/admin/dashboard"
+                  element={
+                    <Layout>
+                      <AdminDashboard />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/admin/users"
+                  element={
+                    <Layout>
+                      <CrudUser />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/admin/categories"
+                  element={
+                    <Layout>
+                      <CrudCategory />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/admin/etablissements"
+                  element={
+                    <Layout>
+                      <AdminEtablissement />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/admin/demandes"
+                  element={
+                    <Layout>
+                      <DemandePrestataire />
+                    </Layout>
+                  }
+                />
+              </Route>
               <Route
-                path="/"
+                element={<RequireAuth allowedRoles={["ROLE_PRESTATAIRE"]} />}
+              >
+                <Route
+                  path="/prestataire/employes"
+                  element={
+                    <Layout>
+                      <CrudEmploye />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/prestataire/prestations"
+                  element={
+                    <Layout>
+                      <CrudPrestation />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/prestataire/etablissements"
+                  element={
+                    <Layout>
+                      <CrudEtablissement />
+                    </Layout>
+                  }
+                />
+                <Route
+                  path="/prestataire/reservations"
+                  element={
+                    <Layout>
+                      <HistoriqueReservation />
+                    </Layout>
+                  }
+                />
+              </Route>
+              <Route
+                path="/login"
                 element={
-                  <Layout>
-                    <DashboardWrapper />
-                  </Layout>
+                  <SimpleLayout>
+                    <LogIn />
+                  </SimpleLayout>
                 }
               />
-            </Route>
-            <Route element={<RequireAuth allowedRoles={["ROLE_ADMIN"]} />}>
               <Route
-                path="/admin/dashboard"
+                path="*"
                 element={
-                  <Layout>
-                    <AdminDashboard />
-                  </Layout>
+                  <SimpleLayout>
+                    <NotFoundPage />
+                  </SimpleLayout>
                 }
               />
-              <Route
-                path="/admin/users"
-                element={
-                  <Layout>
-                    <CrudUser />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/admin/categories"
-                element={
-                  <Layout>
-                    <CrudCategory />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/admin/etablissements"
-                element={
-                  <Layout>
-                    <AdminEtablissement />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/admin/demandes"
-                element={
-                  <Layout>
-                    <DemandePrestataire />
-                  </Layout>
-                }
-              />
-            </Route>
-            <Route
-              element={<RequireAuth allowedRoles={["ROLE_PRESTATAIRE"]} />}
-            >
-              <Route
-                path="/prestataire/employes"
-                element={
-                  <Layout>
-                    <CrudEmploye />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/prestataire/prestations"
-                element={
-                  <Layout>
-                    <CrudPrestation />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/prestataire/etablissements"
-                element={
-                  <Layout>
-                    <CrudEtablissement />
-                  </Layout>
-                }
-              />
-              <Route
-                path="/prestataire/reservations"
-                element={
-                  <Layout>
-                    <HistoriqueReservation />
-                  </Layout>
-                }
-              />
-            </Route>
-            <Route
-              path="/login"
-              element={
-                <SimpleLayout>
-                  <LogIn />
-                </SimpleLayout>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <SimpleLayout>
-                  <NotFoundPage />
-                </SimpleLayout>
-              }
-            />
-          </Routes>
-        </LayoutProvider>
-      </Router>
+            </Routes>
+          </LayoutProvider>
+        </Router>
+      </LoadScript>
     </>
   );
 }

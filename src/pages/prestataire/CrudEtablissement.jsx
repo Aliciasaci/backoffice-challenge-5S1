@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ToggleButton } from 'primereact/togglebutton';
 import TimeRangePicker from '../../components/TimeRangePicker';
 import axios from 'axios';
+import MapFinder from '../../components/MapFinder';
 
 const CrudEtablissement = () => {
     let emptyEtablissement = {
@@ -18,7 +19,7 @@ const CrudEtablissement = () => {
         prestataire: null,
         nom: '',
         adresse: '',
-        kbis: '',
+        kbis: null,
         validation: false,
         horaires_ouverture: {
             lundi: { checked: false, timeRange: { startTime: '', endTime: '' } },
@@ -29,16 +30,55 @@ const CrudEtablissement = () => {
             samedi: { checked: false, timeRange: { startTime: '', endTime: '' } },
             dimanche: { checked: false, timeRange: { startTime: '', endTime: '' } },
         },
+        ville: '',
+        codePostal: '',
     };
+
+    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
     const [etablissements, setEtablissements] = useState([]);
     const [etablissementDialog, setEtablissementDialog] = useState(false);
     const [deleteEtablissementDialog, setDeleteEtablissementDialog] = useState(false);
     const [etablissement, setEtablissement] = useState(emptyEtablissement);
+    const [prestataire, setPrestataire] = useState(''); 
+    const [latitude, setLatitude] = useState('');
+    const [longitude, setLongitude] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
+    const [selectedAddress, setSelectedAddress] = useState('');
     const toast = useRef(null);
     const dt = useRef(null);
+
+    const editEtablissement = async (etablissement) => {
+        console.log("etablissement", etablissement);
+        setEtablissement({...etablissement, 
+            id: etablissement['@id'].split('/')[3],
+            prestataire: etablissement['prestataire']['@id'],
+            nom: etablissement['nom'],
+            adresse: etablissement['adresse'],
+            validation: etablissement['validation'],
+            horaires_ouverture: JSON.parse(etablissement['horairesOuverture']),
+        });
+        // setEtablissement({ ...etablissement });
+        setEtablissementDialog(true);
+    };
+
+    const handleAddressChange = (newAddress) => {
+        setSelectedAddress(newAddress.formatted_address);
+        setLatitude(newAddress.lat);
+        setLongitude(newAddress.lng);
+    };
+
+    useEffect(() => {
+        const parts = selectedAddress.split(',');
+        if (parts.length > 1) {
+            const secondPart = parts[1].trim(); // "45000 Orléans"
+            const thirdPart = parts[2].trim();
+            const [code, ...cityParts] = secondPart.split(' ');
+            setEtablissement({ ...etablissement, adresse: parts[0], codePostal: code, ville: cityParts.join(' ').trim(), pays: thirdPart });
+        } 
+    }, [selectedAddress, etablissement]);
+    
 
     useEffect(() => {
         const fetchEtablissements = async () => {
@@ -46,6 +86,7 @@ const CrudEtablissement = () => {
                 const response = await axios.get('http://localhost:8000/api/etablissements');
                 const data = response['data']['hydra:member'];
                 setEtablissements(data);
+                setPrestataire(data[0]['prestataire']['@id']);
             } catch (error) {
                 console.log("error", error);
             }
@@ -53,11 +94,6 @@ const CrudEtablissement = () => {
 
         fetchEtablissements();
     }, []);
-
-    const handleHorairesOuvertureChange = (updatedHorairesOuverture) => {
-        console.log(updatedHorairesOuverture);
-        setEtablissement({ ...etablissement, jours_ouverture: updatedHorairesOuverture });
-    };
 
     const openNew = () => {
         setEtablissement(emptyEtablissement);
@@ -80,14 +116,17 @@ const CrudEtablissement = () => {
             let _etablissements = [...etablissements];
             let _etablissement = { ...etablissement };
             if (etablissement.id) {
-                const response = await axios.patch(`http://localhost:8000/api/etablissements/${etablissement.id}`, {
+                const response = await axios.patch(`${SERVER_URL}/etablissements/${etablissement.id}`, {
                     prestataire: null,
                     nom: etablissement.nom,
                     adresse: etablissement.adresse,
                     kbis: etablissement.kbis,
                     validation: etablissement.validation,
-                    jours_ouverture: etablissement.jours_ouverture,
-                    horaires_ouverture: etablissement.horaires_ouverture,
+                    horairesOuverture: JSON.stringify(etablissement.horaires_ouverture),
+                    latitude: latitude,
+                    longitude: longitude,
+                    ville: etablissement.ville,
+                    codePostal: etablissement.codePostal,
                 },
                 {
                     headers: {
@@ -99,19 +138,35 @@ const CrudEtablissement = () => {
 
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Etablissement modifié', life: 3000 });
             } else {
-                const response = await axios.post('http://localhost:8000/api/etablissements', {
-                    prestataire: null,
-                    nom: etablissement.nom,
-                    adresse: etablissement.adresse,
-                    kbis: etablissement.kbis,
-                    validation: etablissement.validation,
-                    jours_ouverture: etablissement.jours_ouverture,
-                    horaires_ouverture: etablissement.horaires_ouverture,  
-                });
-                _etablissement = response['data'];
-                _etablissements.push(_etablissement);
-
-                toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Etablissement crée', life: 3000 });
+                let content = new FormData();
+                content.append("nom", etablissement.nom);
+                content.append("adresse", etablissement.adresse);
+                content.append("horairesOuverture", `"${JSON.stringify(etablissement.horaires_ouverture)}"` ); 
+                content.append("prestataire", prestataire);
+                content.append("latitude", latitude);  
+                content.append("longitude", longitude);
+                content.append("ville", etablissement.ville);
+                content.append("codePostal", etablissement.codePostal);
+                try {
+                    const response = await axios.post(`${SERVER_URL}/etablissements`, content, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+        
+                    if (response.status >= 200 && response.status < 300) {
+                        _etablissement = response['data'];
+                        _etablissements.push(_etablissement);
+        
+                        toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Etablissement crée', life: 3000 });
+                    } else {
+                        toast.current.show({ severity: 'error', summary: 'Erreur', detail: 'Etablissement non crée', life: 3000 });
+                    }
+        
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+                
             }
 
             setEtablissements(_etablissements);
@@ -148,11 +203,6 @@ const CrudEtablissement = () => {
             }
         }));
     }
-
-    const editEtablissement = async (etablissement) => {
-        setEtablissement({ ...etablissement });
-        setEtablissementDialog(true);
-    };
 
     const confirmDeleteEtablissement = (etablissement) => {
         setEtablissement(etablissement);
@@ -229,28 +279,19 @@ const CrudEtablissement = () => {
         return (
             <>
                 <span className="p-column-title">Validation</span>
-                <Badge value={rowData.validation === false ? "En attente" : "Validé"} severity={rowData.validation === false ? "warning" : rowData.validation === true ? "success" : "danger"} />
+                <Badge size="large" value={rowData.validation === false ? "En attente" : "Validé"} severity={rowData.validation === false ? "warning" : rowData.validation === true ? "success" : "danger"} />
             </>
         );
     };
 
-    const joursBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Jours ouverture</span>
-                {rowData.jours_ouverture}
-            </>
-        );
-    };
-
-    const horrairesBodyTemplate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Horraires</span>
-                {rowData.horaires_ouverture}
-            </>
-        );
-    };
+    // const horrairesBodyTemplate = (rowData) => {
+    //     return (
+    //         <>
+    //             <span className="p-column-title">Horraires</span>
+    //             {rowData.horaires_ouverture}
+    //         </>
+    //     );
+    // };
 
     const actionBodyTemplate = (rowData) => {
         return (
@@ -277,6 +318,12 @@ const CrudEtablissement = () => {
             <Button label="Save" icon="pi pi-check" text onClick={() => saveEtablissement(etablissement)} />
         </>
     );
+
+    // const handleFileChange = (event) => {
+    //     if (event.target.files.length > 0) {
+    //         setKbis(event.target.files[0]);
+    //     }
+    // };
 
     const deleteEtablissementDialogFooter = (
         <>
@@ -310,7 +357,7 @@ const CrudEtablissement = () => {
                         <Column field="nom" header="Nom" sortable body={nomBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="adresse" header="Adresse" sortable body={adresseBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                         <Column field="validation" header="Validation" sortable body={validationBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
-                        <Column field="horaires_ouverture" header="Horraires ouverture" sortable body={horrairesBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
+                        {/* <Column field="horaires_ouverture" header="Horraires ouverture" sortable body={horrairesBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column> */}
                         <Column body={actionBodyTemplate} headerStyle={{ minWidth: '10rem' }}></Column>
                     </DataTable>
 
@@ -320,10 +367,22 @@ const CrudEtablissement = () => {
                             <InputText id="nom" value={etablissement.nom} onChange={(e) => onInputChange(e, 'nom')} required autoFocus className={classNames({ 'p-invalid': submitted && !etablissement.nom })} />
                             {submitted && !etablissement.nom && <small className="p-invalid">Champ obligatoire.</small>}
                         </div>
+                        {/* <div className="field">
+                            <label htmlFor="kbis" className=' mt-2'>Kbis</label>
+                            <Toast ref={toast}></Toast>
+                            <input className='ml-4' type="file" id="file-upload" name="file-upload" onChange={handleFileChange}/>
+                        </div> */}
                         <div className="field">
                             <label htmlFor="adresse">Adresse</label>
-                            <InputText id="adresse" value={etablissement.adresse} onChange={(e) => onInputChange(e, 'adresse')} required className={classNames({ 'p-invalid': submitted && !etablissement.adresse })} />
-                            {submitted && !etablissement.adresse && <small className="p-invalid">Champ obligatoire.</small>}
+                            {
+                                etablissementDialog && (
+                                    <>
+                                        {submitted && !etablissement.adresse && <small className="p-invalid">Champ obligatoire.</small>}
+                                        <MapFinder onAddressSelect={handleAddressChange}/>
+                                    </>
+                                )
+                            }
+                            
                         </div>
                         <div className="field">
                             <label htmlFor="horaires_ouverture">Horraires d&apos;ouverture</label>

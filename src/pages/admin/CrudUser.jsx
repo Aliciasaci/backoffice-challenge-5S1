@@ -10,7 +10,7 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 const CrudUser = () => {
     let emptyUser = {
@@ -21,6 +21,8 @@ const CrudUser = () => {
         roles: null,
         password: '',
     };
+
+    const axiosPrivate = useAxiosPrivate();
 
     const [users, setUsers] = useState([]);
     const [userDialog, setUserDialog] = useState(false);
@@ -35,9 +37,8 @@ const CrudUser = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/users');
+                const response = await axiosPrivate.get('/users');
                 const data = response['data']['hydra:member'];
-                console.log("fetchUser", data);
                 setUsers(data);
             } catch (error) {
                 console.log("error", error);
@@ -72,7 +73,7 @@ const CrudUser = () => {
             let _users = [...users];
             let _user = { ...user };
             if (user.id) {
-                const response = await axios.patch(`http://localhost:8000/api/users/${user.id}`, {
+                const response = await axiosPrivate.patch(`/users/${user.id}`, {
                     nom: user.nom,
                     prenom: user.prenom,
                     email: user.email,
@@ -89,7 +90,7 @@ const CrudUser = () => {
 
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Utilisateur modifié', life: 3000 });
             } else {
-                const response = await axios.post('http://localhost:8000/api/users', {
+                const response = await axiosPrivate.post('/users', {
                     nom: user.nom,
                     prenom: user.prenom,
                     email: user.email,
@@ -120,7 +121,7 @@ const CrudUser = () => {
     };
 
     const deleteUser = async (user) => {
-        const response = axios.delete(`http://localhost:8000/api/users/${user.id}`);
+        const response = axiosPrivate.delete(`/users/${user.id}`);
         let _users = users.filter((val) => val.id !== user.id);
         setUsers(_users);
         setDeleteUserDialog(false);

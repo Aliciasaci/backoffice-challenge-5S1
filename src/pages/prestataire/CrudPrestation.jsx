@@ -9,7 +9,8 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import useAuth from '../../hooks/useAuth';
 
 const CrudPrestation = () => {
     let emptyPrestation = {
@@ -21,6 +22,11 @@ const CrudPrestation = () => {
         category: null,
         etablissement: null,
     };
+
+    const { auth } = useAuth();
+    const id = auth?.userId;
+
+    const axiosPrivate = useAxiosPrivate();
 
     const [prestations, setPrestations] = useState([]);
     const [prestationDialog, setPrestationDialog] = useState(false);
@@ -38,9 +44,12 @@ const CrudPrestation = () => {
     useEffect(() => {
         const fetchPrestations = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/prestations');
-                const data = response['data']['hydra:member'];
-                setPrestations(data);
+                const dataEtablissement = await fetchEtablissements();
+                for (let i = 0; i < dataEtablissement.length; i++) {
+                    const responseEmploye = await axiosPrivate.get(`/etablissements/${dataEtablissement[i].id}/prestations`);
+                    const dataEmploye = responseEmploye['data']['hydra:member'];
+                    setPrestations(dataEmploye);
+                }   
             } catch (error) {
                 console.log("error", error);
             }
@@ -51,9 +60,10 @@ const CrudPrestation = () => {
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/categories');
+            const response = await axiosPrivate.get(`/categories`);
             const data = response['data']['hydra:member'];
             setCategories(data);
+            return data;
         } catch (error) {
             console.log("error", error);
         }
@@ -61,9 +71,10 @@ const CrudPrestation = () => {
 
     const fetchEtablissements = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/etablissements');
+            const response = await axiosPrivate.get(`/prestataires/${id}/etablissements`);
             const data = response['data']['hydra:member'];
             setEtablissements(data);
+            return data;
         } catch (error) {
             console.log("error", error);
         }
@@ -92,7 +103,7 @@ const CrudPrestation = () => {
             let _prestations = [...prestations];
             let _prestation = { ...prestation };
             if (prestation.id) {
-                const response = await axios.patch(`http://localhost:8000/api/prestations/${prestation.id}`, {
+                const response = await axiosPrivate.patch(`http://localhost:8000/api/prestations/${prestation.id}`, {
                     titre: prestation.titre,
                     duree: prestation.duree,
                     prix: prestation.prix,
@@ -110,7 +121,7 @@ const CrudPrestation = () => {
 
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Prestation modifiée', life: 3000 });
             } else {
-                const response = await axios.post('http://localhost:8000/api/prestations', {
+                const response = await axiosPrivate.post('http://localhost:8000/api/prestations', {
                     titre: prestation.titre,
                     duree: prestation.duree,
                     prix: prestation.prix,
@@ -132,18 +143,16 @@ const CrudPrestation = () => {
     };
 
     const editPrestation = async (prestation) => {
-        fetchCategories();
-        fetchEtablissements();
+        let cates = await fetchCategories();
+        let etabs = await fetchEtablissements();
         setPrestation({ ...prestation });
         setPrestationDialog(true);
-        if (prestation.category) {
-            let cat = categories.find((el) => el.name === prestation.category.name);
-            setSelectedCategory(cat);
-        }
-        if (prestation.etablissement) {
-            let etab = etablissements.find((el) => el.nom === prestation.etablissement.nom);
-            setSelectedEtablissement(etab);
-        }
+    
+        let cat = cates.find((el) => el.id === prestation.category.id);
+        setSelectedCategory(cat);
+    
+        let etab = etabs.find((el) => el.id === prestation.etablissement.id);
+        setSelectedEtablissement(etab);    
     };
 
     const confirmDeletePrestation = (prestation) => {
@@ -152,7 +161,7 @@ const CrudPrestation = () => {
     };
 
     const deletePrestation = async (prestation) => {
-        const response = axios.delete(`http://localhost:8000/api/prestations/${prestation.id}`);
+        const response = axiosPrivate.delete(`http://localhost:8000/api/prestations/${prestation.id}`);
         let _prestations = prestations.filter((val) => val.id !== prestation.id);
         setPrestations(_prestations);
         setDeletePrestationDialog(false);

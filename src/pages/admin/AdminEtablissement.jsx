@@ -7,7 +7,7 @@ import { Toast } from 'primereact/toast';
 import { Toolbar } from 'primereact/toolbar';
 import { Badge } from 'primereact/badge';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 const AdminEtablissement = () => {
     let emptyEtablissement = {
@@ -28,10 +28,12 @@ const AdminEtablissement = () => {
     const toast = useRef(null);
     const dt = useRef(null);
 
+    const axiosPrivate = useAxiosPrivate();
+
     useEffect(() => {
         const fetchEtablissements = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/etablissements');
+                const response = await axiosPrivate.get('/etablissements');
                 const data = response['data']['hydra:member'];
                 console.log("data", data);
                 setEtablissements(data);
@@ -54,7 +56,7 @@ const AdminEtablissement = () => {
     };
 
     const deleteEtablissement = async (etablissement) => {
-        const response = axios.delete(`http://localhost:8000/api/etablissements/${etablissement.id}`);
+        const response = axiosPrivate.delete(`/etablissements/${etablissement.id}`);
         let _etablissements = etablissements.filter((val) => val.id !== etablissement.id);
         setEtablissements(_etablissements);
         setDeleteEtablissementDialog(false);

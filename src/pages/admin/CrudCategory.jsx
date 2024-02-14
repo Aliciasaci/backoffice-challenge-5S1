@@ -228,7 +228,7 @@ const CrudCategory = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {category && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{category.name}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{category.name}</b> ?
                                 </span>
                             )}
                         </div>

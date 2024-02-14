@@ -157,13 +157,10 @@ const CrudEmploye = () => {
         const val = e.value.id;
         let _employe = { ...employe };
         _employe[`${name}`] = val;
-        console.log("val", val);
-        console.log("_employe", _employe);
         setEmploye(_employe);
 
         if (name === 'etablissement_id') {
             let etab = etablissements.find((el) => el.id === val);
-            console.log("etab", etab);
             setSelectedEtablissement(etab);
         }  
     };
@@ -353,7 +350,7 @@ const CrudEmploye = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {employe && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{employe.nom} {employe.prenom}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{employe.nom} {employe.prenom}</b> ?
                                 </span>
                             )}
                         </div>

@@ -140,7 +140,6 @@ const CrudUser = () => {
     const onRoleChange = (e) => {
         let _user = { ...user };
         let role = [e.value];
-        console.log("role", role);
         _user['roles'] = role;
         setUser(_user);
     };
@@ -336,7 +335,7 @@ const CrudUser = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {user && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{user.nom} {user.prenom}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{user.nom} {user.prenom}</b> ?
                                 </span>
                             )}
                         </div>

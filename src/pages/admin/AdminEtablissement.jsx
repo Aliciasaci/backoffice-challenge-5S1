@@ -33,7 +33,6 @@ const AdminEtablissement = () => {
             try {
                 const response = await axiosPrivate.get('/etablissements');
                 const data = response['data']['hydra:member'];
-                console.log("data", data);
                 setEtablissements(data);
             } catch (error) {
                 console.log("error", error);
@@ -188,7 +187,7 @@ const AdminEtablissement = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {etablissement && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{etablissement.nom}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{etablissement.nom}</b> ? 
                                 </span>
                             )}
                         </div>

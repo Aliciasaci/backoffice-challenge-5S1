@@ -6,20 +6,27 @@ import { Toolbar } from 'primereact/toolbar';
 import { Badge } from 'primereact/badge';
 import { useEffect, useRef, useState } from 'react';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import useAuth from '../../hooks/useAuth';
 
 const HistoriqueReservation = () => {
     const [reservations, setReservations] = useState([]);
     const [globalFilter, setGlobalFilter] = useState(null);
     const dt = useRef(null);
 
+    const { auth } = useAuth();
+    const id = auth?.userId;
     const axiosPrivate = useAxiosPrivate();
 
     useEffect(() => {
         const fetchReservations = async () => {
             try {
-                const response = await axiosPrivate.get('/reservations');
+                const response = await axiosPrivate.get(`/prestataires/${id}/etablissements`);
                 const data = response['data']['hydra:member'];
-                setReservations(data);
+                for (let i = 0; i < data.length; i++) {
+                    const responseReservation = await axiosPrivate.get(`/etablissements/${data[i].id}/reservations`);
+                    const dataReservation = responseReservation['data']['hydra:member'];
+                    setReservations(dataReservation);
+                }
             } catch (error) {
                 console.log("error", error);
             }

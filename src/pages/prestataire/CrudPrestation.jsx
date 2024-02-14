@@ -130,7 +130,6 @@ const CrudPrestation = () => {
                     etablissement: selectedEtablissement,  
                 });
                 _prestation = response['data'];
-                console.log("_prestation", _prestation);
                 _prestations.push(_prestation);
 
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Prestation créée', life: 3000 });
@@ -177,7 +176,6 @@ const CrudPrestation = () => {
         const val = (e.target && e.target.value) || '';
         let _prestation = { ...prestation };
         _prestation[`${name}`] = val;
-        console.log("val", val);
         setPrestation(_prestation);
     };
 
@@ -185,7 +183,6 @@ const CrudPrestation = () => {
         const val = e.value.id;
         let _prestation = { ...prestation };
         _prestation[`${name}`] = val;
-        console.log("val", val);
         setPrestation(_prestation);
         if (name === 'category_id') {
             let cat = categories.find((el) => el.id === val);
@@ -379,7 +376,7 @@ const CrudPrestation = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {prestation && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{prestation.titre}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{prestation.titre}</b> ?
                                 </span>
                             )}
                         </div>

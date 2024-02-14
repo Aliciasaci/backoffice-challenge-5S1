@@ -10,8 +10,9 @@ import { classNames } from 'primereact/utils';
 import { useEffect, useRef, useState } from 'react';
 import { ToggleButton } from 'primereact/togglebutton';
 import TimeRangePicker from '../../components/TimeRangePicker';
-import axios from 'axios';
 import MapFinder from '../../components/MapFinder';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
+import useAuth from '../../hooks/useAuth';
 
 const CrudEtablissement = () => {
     let emptyEtablissement = {
@@ -34,7 +35,10 @@ const CrudEtablissement = () => {
         codePostal: '',
     };
 
-    const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+    const { auth } = useAuth();
+    const id = auth?.userId;
+
+    const axiosPrivate = useAxiosPrivate();
 
     const [etablissements, setEtablissements] = useState([]);
     const [etablissementDialog, setEtablissementDialog] = useState(false);
@@ -85,7 +89,7 @@ const CrudEtablissement = () => {
     useEffect(() => {
         const fetchEtablissements = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/etablissements');
+                const response = await axiosPrivate.get(`/prestataires/${id}/etablissements`);
                 const data = response['data']['hydra:member'];
                 setEtablissements(data);
                 setPrestataire(data[0]['prestataire']['@id']);
@@ -119,7 +123,7 @@ const CrudEtablissement = () => {
             let _etablissements = [...etablissements];
             let _etablissement = { ...etablissement };
             if (etablissement.id) {
-                const response = await axios.patch(`${SERVER_URL}/etablissements/${etablissement.id}`, {
+                const response = await axiosPrivate.patch(`/etablissements/${etablissement.id}`, {
                     prestataire: null,
                     nom: etablissement.nom,
                     adresse: etablissement.adresse,
@@ -152,13 +156,11 @@ const CrudEtablissement = () => {
                 content.append("kbisFile", kbis);
                 content.append("codePostal", etablissement.codePostal);
                 try {
-                    const response = await axios.post(`${SERVER_URL}/etablissements`, content, {
+                    const response = await axiosPrivate.post(`/etablissements`, content, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
                     });
-
-                    console.log("response", response.status);
         
                     if (response.status >= 200 && response.status < 300) {
                         _etablissement = response['data'];
@@ -216,7 +218,7 @@ const CrudEtablissement = () => {
     };
 
     const deleteEtablissement = async (etablissement) => {
-        const response = axios.delete(`http://localhost:8000/api/etablissements/${etablissement.id}`);
+        const response = axiosPrivate.delete(`/etablissements/${etablissement.id}`);
         let _etablissements = etablissements.filter((val) => val.id !== etablissement.id);
         setEtablissements(_etablissements);
         setDeleteEtablissementDialog(false);
@@ -290,15 +292,6 @@ const CrudEtablissement = () => {
         );
     };
 
-    // const horrairesBodyTemplate = (rowData) => {
-    //     return (
-    //         <>
-    //             <span className="p-column-title">Horraires</span>
-    //             {rowData.horaires_ouverture}
-    //         </>
-    //     );
-    // };
-
     const actionBodyTemplate = (rowData) => {
         return (
             <>
@@ -310,7 +303,7 @@ const CrudEtablissement = () => {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Gestion etablissements</h5>
+            <h5 className="m-0">Gestion établissements</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onChange={(e) => setGlobalFilter(e.target.value)} placeholder="Rechercher..." />
@@ -434,7 +427,7 @@ const CrudEtablissement = () => {
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
                             {etablissement && (
                                 <span>
-                                    Etes vous sûr de vouloir supprimer <b>{etablissement.nom}</b>?
+                                    Etes vous sûr de vouloir supprimer <b>{etablissement.nom}</b> ?
                                 </span>
                             )}
                         </div>

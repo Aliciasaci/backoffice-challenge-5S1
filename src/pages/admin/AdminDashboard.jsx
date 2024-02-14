@@ -269,7 +269,7 @@ const AdminDashboard = () => {
                         <h5>Notifications</h5>
                     </div>
 
-                    <span className="block text-600 font-medium mb-3">TODAY</span>
+                    {/* <span className="block text-600 font-medium mb-3">TODAY</span>
                     <ul className="p-0 mx-0 mt-0 mb-4 list-none">
                         <li className="flex align-items-center py-2 border-bottom-1 surface-border">
                             <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
@@ -316,7 +316,7 @@ const AdminDashboard = () => {
                                 <span className="text-700"> has posted a new questions about your product.</span>
                             </span>
                         </li>
-                    </ul>
+                    </ul> */}
                 </div>
             </div>
 

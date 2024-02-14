@@ -22,7 +22,7 @@ const PersistLogin = () => {
         setLoading(false);
       }
     };
-    !auth?.accessToken ? setLoading(false) : verifyRefreshToken();
+    !auth?.accessToken ? verifyRefreshToken() : setLoading(false);
   }, []);
 
   const containerClassName = classNames(

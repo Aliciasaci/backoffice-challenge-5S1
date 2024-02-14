@@ -12,6 +12,12 @@ const PersistLogin = () => {
   const { auth } = useAuth();
   const layoutConfig = useContext(LayoutContext);
 
+  function isTokenExpired(token) {
+    if (!token) return true;
+    const jwt = JSON.parse(atob(token.split(".")[1]));
+    return jwt.exp < Date.now() / 1000;
+  }
+
   useEffect(() => {
     const verifyRefreshToken = async () => {
       try {
@@ -22,7 +28,9 @@ const PersistLogin = () => {
         setLoading(false);
       }
     };
-    !auth?.accessToken ? verifyRefreshToken() : setLoading(false);
+    isTokenExpired(auth?.accessToken)
+      ? verifyRefreshToken()
+      : setLoading(false);
   }, []);
 
   const containerClassName = classNames(

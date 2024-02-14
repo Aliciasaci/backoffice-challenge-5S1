@@ -53,6 +53,7 @@ const LoginPage = () => {
         `/verify-role`,
         {
           email: email,
+          refreshToken: refreshToken,
         },
         {
           headers: {
@@ -111,7 +112,9 @@ const LoginPage = () => {
             style={{ borderRadius: "53px" }}
           >
             <div className="text-center mb-5">
-              <span className="text-600 font-medium">Sign in to continue</span>
+              <span className="text-600 font-medium">
+                Connectez-vous pour continuer
+              </span>
             </div>
 
             <div>
@@ -119,7 +122,7 @@ const LoginPage = () => {
                 htmlFor="email1"
                 className="block text-900 text-xl font-medium mb-2"
               >
-                Email
+                E-mail
               </label>
               <InputText
                 id="email1"
@@ -135,7 +138,7 @@ const LoginPage = () => {
                 htmlFor="password1"
                 className="block text-900 font-medium text-xl mb-2"
               >
-                Password
+                Mot de passe
               </label>
               <Password
                 inputId="password1"
@@ -146,26 +149,8 @@ const LoginPage = () => {
                 className="w-full mb-5"
                 inputClassName="w-full p-3 md:w-30rem"
               ></Password>
-
-              <div className="flex align-items-center justify-content-between mb-5 gap-5">
-                <div className="flex align-items-center">
-                  <Checkbox
-                    inputId="rememberme1"
-                    checked={checked}
-                    onChange={(e) => setChecked(e.checked ?? false)}
-                    className="mr-2"
-                  ></Checkbox>
-                  <label htmlFor="rememberme1">Remember me</label>
-                </div>
-                <a
-                  className="font-medium no-underline ml-2 text-right cursor-pointer"
-                  style={{ color: "var(--primary-color)" }}
-                >
-                  Forgot password?
-                </a>
-              </div>
               <Button
-                label="Sign In"
+                label="Se connecter"
                 className="w-full p-3 text-xl"
                 onClick={handleSubmit}
               ></Button>

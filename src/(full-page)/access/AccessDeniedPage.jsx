@@ -1,6 +1,6 @@
 import { classNames } from "primereact/utils";
 import { useNavigate } from "react-router-dom";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Button } from "primereact/button";
 import { LayoutContext } from "../../layout/context/layoutcontext.jsx";
 import { useLocation } from "react-router-dom";
@@ -13,12 +13,16 @@ const AccessDeniedPage = () => {
   const { auth } = useAuth();
   const from = location.state?.from?.pathname || "/";
   const to = auth?.accessToken ? from : "/login";
-  const label = auth?.accessToken ? "Go back" : "Log in";
+  const label = auth?.accessToken ? "Retour" : "Se connecter";
 
   const containerClassName = classNames(
     "surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden",
     { "p-input-filled": layoutConfig.inputStyle === "filled" }
   );
+
+  useEffect(() => {
+    if (!auth?.accessToken) return navigate(to);
+  }, [auth, navigate, to]);
 
   return (
     <div className={containerClassName}>
@@ -41,9 +45,10 @@ const AccessDeniedPage = () => {
             >
               <i className="pi pi-fw pi-exclamation-circle text-2xl text-white"></i>
             </div>
-            <h1 className="text-900 font-bold text-5xl mb-2">Access Denied</h1>
+            <h1 className="text-900 font-bold text-5xl mb-2">Accès refusé</h1>
             <div className="text-600 mb-5">
-              You do not have the necessary permisions.
+              Vous n&apos;avez pas les droits nécessaires pour accéder à cette
+              page.
             </div>
             <Button
               icon="pi pi-arrow-left"

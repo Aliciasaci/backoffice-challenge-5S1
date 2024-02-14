@@ -26,9 +26,9 @@ const NotFoundPage = () => {
             style={{ borderRadius: "53px" }}
           >
             <span className="text-blue-500 font-bold text-3xl">404</span>
-            <h1 className="text-900 font-bold text-5xl mb-2">Not Found</h1>
+            <h1 className="text-900 font-bold text-5xl mb-2">Non trouvée</h1>
             <div className="text-600 mb-5">
-              Requested resource is not available
+              Cette page n&apos;existe pas ou a été supprimée.
             </div>
           </div>
         </div>

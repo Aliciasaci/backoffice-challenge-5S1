@@ -65,7 +65,7 @@ const AppMenu = () => {
         {
           label: "Historique Réservations",
           icon: "pi pi-fw pi-table",
-          to: "/prestataire/historique-reservations",
+          to: "/prestataire/reservations",
         },
       ],
     });

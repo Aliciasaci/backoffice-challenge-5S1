@@ -1,7 +1,7 @@
 import { Chart } from 'primereact/chart';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import useAuth from '../../hooks/useAuth';
+import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 
 const PrestataireDashboard = () => {
     const [nbEtablissements, setNbEtablissements] = useState(0);
@@ -13,6 +13,8 @@ const PrestataireDashboard = () => {
 
     const { auth } = useAuth();
     const id = auth?.userId;
+
+    const axiosPrivate = useAxiosPrivate();
 
     const lineData = {
         labels: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'June', 'Juillet'],
@@ -63,24 +65,20 @@ const PrestataireDashboard = () => {
     useEffect(() => {
         const countEtablissements = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/api/prestataires/${id}/etablissements`);
+                const response = await axiosPrivate.get(`/prestataires/${id}/etablissements`);
                 const data = response['data']['hydra:member'];
                 for (let i = 0; i < data.length; i++) {
-                    const responseEmploye = await axios.get(`http://localhost:8000/api/etablissements/${data[i].id}/employes`);
+                    const responseEmploye = await axiosPrivate.get(`/etablissements/${data[i].id}/employes`);
                     const dataEmploye = responseEmploye['data']['hydra:member'];
-                    console.log("employe", dataEmploye);
-                    for (let j = 0; j < dataEmploye.length; j++) {
-                        const responseReservation = await axios.get(`http://localhost:8000/api/employes/${dataEmploye[j].id}/reservations`);
-                        const dataReservation = responseReservation['data']['hydra:member'];
-                        console.log("resa", dataReservation);
-                        setNbReservations(nbReservations + dataReservation.length);
-                    }
                     setNbEmployes(nbEmployes + dataEmploye.length);
 
-                    const responsePrestation = await axios.get(`http://localhost:8000/api/etablissements/${data[i].id}/prestations`);
+                    const responsePrestation = await axiosPrivate.get(`/etablissements/${data[i].id}/prestations`);
                     const dataPrestation = responsePrestation['data']['hydra:member'];
                     setNbPrestations(nbPrestations + dataPrestation.length);
-                    
+
+                    const responseReservation = await axiosPrivate.get(`/etablissements/${data[i].id}/reservations`);
+                    const dataReservation = responseReservation['data']['hydra:member'];
+                    setNbReservations(nbReservations + dataReservation.length);
                 }
 
                 setNbEtablissements(data.length);
@@ -104,13 +102,12 @@ const PrestataireDashboard = () => {
         }
 
         countEtablissements();
-
         chart();
     }, []);
 
     const countReservationsByMonth = async (month) => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/reservations?month=${month}`);
+            const response = await axiosPrivate.get(`/reservations?month=${month}`);
             const data = response['data']['hydra:member'];
             return data.length;
         } catch (error) {
@@ -120,7 +117,7 @@ const PrestataireDashboard = () => {
 
     const countReservationsCanceledByMonth = async (month) => {
         try {
-            const response = await axios.get(`http://localhost:8000/api/reservations?month=${month}&status=canceled`);
+            const response = await axiosPrivate.get(`/reservations?month=${month}&status=canceled`);
             const data = response['data']['hydra:member'];
             return data.length;
         } catch (error) {

@@ -82,32 +82,35 @@ const PrestataireDashboard = () => {
                 }
 
                 setNbEtablissements(data.length);
+
+                chart(data);
             } catch (error) {
                 console.log(error);
             }
         }
 
-        const chart = async () => {
+        const chart = async (listEtab) => {
             let dataReservationsByMonth = [];
             let dataReservationsCanceledByMonth = [];
             for (let i = 1; i <= 7; i++) {
-                const nbReservationsByMonth = await countReservationsByMonth(i);
-                dataReservationsByMonth.push(nbReservationsByMonth);
+                for (let k=0; k<listEtab.length; k++) {
+                    const nbReservationsByMonth = await countReservationsByMonth(i, listEtab[k].id);
+                    dataReservationsByMonth.push(nbReservationsByMonth);
 
-                const nbReservationsCanceledByMonth = await countReservationsCanceledByMonth(i);
-                dataReservationsCanceledByMonth.push(nbReservationsCanceledByMonth);
+                    const nbReservationsCanceledByMonth = await countReservationsCanceledByMonth(i, listEtab[k].id);
+                    dataReservationsCanceledByMonth.push(nbReservationsCanceledByMonth);
+                }
             }
             setNbDataLine(dataReservationsByMonth);
             setNbDataLine2(dataReservationsCanceledByMonth);
         }
 
         countEtablissements();
-        chart();
     }, []);
 
-    const countReservationsByMonth = async (month) => {
+    const countReservationsByMonth = async (month, id) => {
         try {
-            const response = await axiosPrivate.get(`/reservations?month=${month}`);
+            const response = await axiosPrivate.get(`/etablissements/${id}/reservations?month=${month}`);
             const data = response['data']['hydra:member'];
             return data.length;
         } catch (error) {
@@ -115,9 +118,9 @@ const PrestataireDashboard = () => {
         }
     }
 
-    const countReservationsCanceledByMonth = async (month) => {
+    const countReservationsCanceledByMonth = async (month, id) => {
         try {
-            const response = await axiosPrivate.get(`/reservations?month=${month}&status=canceled`);
+            const response = await axiosPrivate.get(`/etablissements/${id}/reservations?month=${month}&status=canceled`);
             const data = response['data']['hydra:member'];
             return data.length;
         } catch (error) {

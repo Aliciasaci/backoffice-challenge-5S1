@@ -45,12 +45,13 @@ const CrudEtablissement = () => {
     const [longitude, setLongitude] = useState('');
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
+    const [isPosting, setIsPosting] = useState(false);
+    const [kbis, setKbis] = useState(null);
     const [selectedAddress, setSelectedAddress] = useState('');
     const toast = useRef(null);
     const dt = useRef(null);
 
     const editEtablissement = async (etablissement) => {
-        console.log("etablissement", etablissement);
         setEtablissement({...etablissement, 
             id: etablissement['@id'].split('/')[3],
             prestataire: etablissement['prestataire']['@id'],
@@ -59,6 +60,7 @@ const CrudEtablissement = () => {
             validation: etablissement['validation'],
             horaires_ouverture: JSON.parse(etablissement['horairesOuverture']),
         });
+        setIsPosting(false);
         // setEtablissement({ ...etablissement });
         setEtablissementDialog(true);
     };
@@ -97,6 +99,7 @@ const CrudEtablissement = () => {
 
     const openNew = () => {
         setEtablissement(emptyEtablissement);
+        setIsPosting(true);
         setSubmitted(false);
         setEtablissementDialog(true);
     };
@@ -146,6 +149,7 @@ const CrudEtablissement = () => {
                 content.append("latitude", latitude);  
                 content.append("longitude", longitude);
                 content.append("ville", etablissement.ville);
+                content.append("kbisFile", kbis);
                 content.append("codePostal", etablissement.codePostal);
                 try {
                     const response = await axios.post(`${SERVER_URL}/etablissements`, content, {
@@ -153,6 +157,8 @@ const CrudEtablissement = () => {
                             'Content-Type': 'multipart/form-data'
                         }
                     });
+
+                    console.log("response", response.status);
         
                     if (response.status >= 200 && response.status < 300) {
                         _etablissement = response['data'];
@@ -319,11 +325,11 @@ const CrudEtablissement = () => {
         </>
     );
 
-    // const handleFileChange = (event) => {
-    //     if (event.target.files.length > 0) {
-    //         setKbis(event.target.files[0]);
-    //     }
-    // };
+    const handleFileChange = (event) => {
+        if (event.target.files.length > 0) {
+            setKbis(event.target.files[0]);
+        }
+    };
 
     const deleteEtablissementDialogFooter = (
         <>
@@ -367,11 +373,15 @@ const CrudEtablissement = () => {
                             <InputText id="nom" value={etablissement.nom} onChange={(e) => onInputChange(e, 'nom')} required autoFocus className={classNames({ 'p-invalid': submitted && !etablissement.nom })} />
                             {submitted && !etablissement.nom && <small className="p-invalid">Champ obligatoire.</small>}
                         </div>
-                        {/* <div className="field">
-                            <label htmlFor="kbis" className=' mt-2'>Kbis</label>
-                            <Toast ref={toast}></Toast>
-                            <input className='ml-4' type="file" id="file-upload" name="file-upload" onChange={handleFileChange}/>
-                        </div> */}
+                        <div className="field">
+                            {isPosting && (
+                                <>
+                                    <label htmlFor="kbis" className=' mt-2'>Kbis</label>
+                                    <Toast ref={toast}></Toast>
+                                    <input className='ml-4' type="file" id="file-upload" name="file-upload" onChange={handleFileChange} />
+                                </>
+                            )}
+                        </div>
                         <div className="field">
                             <label htmlFor="adresse">Adresse</label>
                             {

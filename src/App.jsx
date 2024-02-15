@@ -46,7 +46,7 @@ function App() {
                 </Route>
                 <Route element={<RequireAuth allowedRoles={["ROLE_ADMIN"]} />}>
                   <Route
-                    path="/admin/dashboard"
+                    path="/backoffice-challenge-5S1/admin/dashboard"
                     element={
                       <Layout>
                         <AdminDashboard />
@@ -54,7 +54,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/admin/users"
+                    path="/backoffice-challenge-5S1/admin/users"
                     element={
                       <Layout>
                         <CrudUser />
@@ -62,7 +62,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/admin/categories"
+                    path="/backoffice-challenge-5S1/admin/categories"
                     element={
                       <Layout>
                         <CrudCategory />
@@ -70,7 +70,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/admin/etablissements"
+                    path="/backoffice-challenge-5S1/admin/etablissements"
                     element={
                       <Layout>
                         <AdminEtablissement />
@@ -78,7 +78,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/admin/demandes"
+                    path="/backoffice-challenge-5S1/admin/demandes"
                     element={
                       <Layout>
                         <ValidationEtablissement />
@@ -90,7 +90,7 @@ function App() {
                   element={<RequireAuth allowedRoles={["ROLE_PRESTATAIRE"]} />}
                 >
                   <Route
-                    path="/prestataire/employes"
+                    path="/backoffice-challenge-5S1/prestataire/employes"
                     element={
                       <Layout>
                         <CrudEmploye />
@@ -98,7 +98,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/prestataire/prestations"
+                    path="/backoffice-challenge-5S1/prestataire/prestations"
                     element={
                       <Layout>
                         <CrudPrestation />
@@ -106,7 +106,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/prestataire/etablissements"
+                    path="/backoffice-challenge-5S1/prestataire/etablissements"
                     element={
                       <Layout>
                         <CrudEtablissement />
@@ -114,7 +114,7 @@ function App() {
                     }
                   />
                   <Route
-                    path="/prestataire/reservations"
+                    path="/backoffice-challenge-5S1/prestataire/reservations"
                     element={
                       <Layout>
                         <HistoriqueReservation />
@@ -124,7 +124,7 @@ function App() {
                 </Route>
               </Route>
               <Route
-                path="/login"
+                path="/backoffice-challenge-5S1/login"
                 element={
                   <SimpleLayout>
                     <LogIn />

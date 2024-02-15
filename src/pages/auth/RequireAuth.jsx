@@ -18,7 +18,11 @@ const RequireAuth = ({ allowedRoles }) => {
           <AccessDeniedPage />
         </SimpleLayout>
       ) : (
-        <Navigate to="/login" state={{ from: location }} replace />
+        <Navigate
+          to="/backoffice-challenge-5S1/login"
+          state={{ from: location }}
+          replace
+        />
       )}
     </>
   );

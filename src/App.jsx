@@ -132,7 +132,7 @@ function App() {
                 }
               />
               <Route
-                path="*"
+                path="/backoffice-challenge-5S1/*"
                 element={
                   <SimpleLayout>
                     <NotFoundPage />

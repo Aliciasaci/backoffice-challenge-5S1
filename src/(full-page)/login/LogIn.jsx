@@ -1,5 +1,4 @@
-import React, { useContext, useState, useRef } from "react";
-import { Checkbox } from "primereact/checkbox";
+import { useContext, useState, useRef } from "react";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
 import { LayoutContext } from "../../layout/context/layoutcontext.jsx";
@@ -15,7 +14,6 @@ import { ProgressSpinner } from "primereact/progressspinner";
 const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [checked, setChecked] = useState(false);
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
   const { setAuth } = useAuth();

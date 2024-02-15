@@ -161,16 +161,10 @@ const CrudEtablissement = () => {
                             'Content-Type': 'multipart/form-data'
                         }
                     });
-        
-                    if (response.status >= 200 && response.status < 300) {
                         _etablissement = response['data'];
                         _etablissements.push(_etablissement);
         
                         toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Etablissement crée', life: 3000 });
-                    } else {
-                        toast.current.show({ severity: 'error', summary: 'Erreur', detail: 'Etablissement non crée', life: 3000 });
-                    }
-        
                 } catch (error) {
                     console.error('Error:', error);
                 }

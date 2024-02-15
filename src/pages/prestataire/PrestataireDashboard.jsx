@@ -2,6 +2,7 @@ import { Chart } from "primereact/chart";
 import { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const PrestataireDashboard = () => {
   const [nbEtablissements, setNbEtablissements] = useState(0);
@@ -10,6 +11,7 @@ const PrestataireDashboard = () => {
   const [nbReservations, setNbReservations] = useState(0);
   const [nbDataLine, setNbDataLine] = useState([]);
   const [nbDataLine2, setNbDataLine2] = useState([]);
+  const [isChartLoading, setIsChartLoading] = useState(false);
 
   const { auth } = useAuth();
   const id = auth?.userId;
@@ -98,23 +100,35 @@ const PrestataireDashboard = () => {
     };
 
     const chart = async (listEtab) => {
-      let dataReservationsByMonth = [];
-      let dataReservationsCanceledByMonth = [];
-      for (let i = 1; i <= 7; i++) {
-        for (let k = 0; k < listEtab.length; k++) {
-          const nbReservationsByMonth = await countReservationsByMonth(
-            i,
-            listEtab[k].id
-          );
-          dataReservationsByMonth.push(nbReservationsByMonth);
+      let chartData = JSON.parse(localStorage.getItem("chartData")) || {
+        dataReservationsByMonth: [],
+        dataReservationsCanceledByMonth: [],
+      };
+      if (
+        chartData.dataReservationsByMonth.length === 0 ||
+        chartData.dataReservationsCanceledByMonth.length === 0
+      ) {
+        setIsChartLoading(true);
+        for (let i = 1; i <= 7; i++) {
+          for (let k = 0; k < listEtab.length; k++) {
+            const nbReservationsByMonth = await countReservationsByMonth(
+              i,
+              listEtab[k].id
+            );
+            chartData.dataReservationsByMonth.push(nbReservationsByMonth);
 
-          const nbReservationsCanceledByMonth =
-            await countReservationsCanceledByMonth(i, listEtab[k].id);
-          dataReservationsCanceledByMonth.push(nbReservationsCanceledByMonth);
+            const nbReservationsCanceledByMonth =
+              await countReservationsCanceledByMonth(i, listEtab[k].id);
+            chartData.dataReservationsCanceledByMonth.push(
+              nbReservationsCanceledByMonth
+            );
+          }
         }
+        localStorage.setItem("chartData", JSON.stringify(chartData));
+        setIsChartLoading(false);
       }
-      setNbDataLine(dataReservationsByMonth);
-      setNbDataLine2(dataReservationsCanceledByMonth);
+      setNbDataLine(chartData.dataReservationsByMonth);
+      setNbDataLine2(chartData.dataReservationsCanceledByMonth);
     };
 
     countEtablissements();
@@ -241,8 +255,14 @@ const PrestataireDashboard = () => {
 
       <div className="col-12 xl:col-6">
         <div className="card">
-          <h5>Stat réservations</h5>
-          <Chart type="line" data={lineData} options={lineOptions} />
+          <h5>Stats réservations</h5>
+          {isChartLoading ? (
+            <div className="flex align-items-center justify-content-center">
+              <ProgressSpinner style={{ width: "50px", height: "50px" }} />
+            </div>
+          ) : (
+            <Chart type="line" data={lineData} options={lineOptions} />
+          )}
         </div>
       </div>
     </div>

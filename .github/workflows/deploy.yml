@@ -28,7 +28,7 @@ jobs:
         run: |
           npm install
           npm install -g gh-pages --save-dev
-
+      
       - name: Deploy
         run: |
           git config --global user.name alicia

@@ -33,6 +33,9 @@ jobs:
           echo "Hello ${{ env.VITE_SERVER_URL }}"
           echo "Hello $user_name"
           echo $user_name
+        env:
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
 
       - name: Deploy
         run: |

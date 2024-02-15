@@ -70,15 +70,21 @@ const PrestataireDashboard = () => {
                 for (let i = 0; i < data.length; i++) {
                     const responseEmploye = await axiosPrivate.get(`/etablissements/${data[i].id}/employes`);
                     const dataEmploye = responseEmploye['data']['hydra:member'];
-                    setNbEmployes(nbEmployes + dataEmploye.length);
+                    if (dataEmploye.length > 0) {
+                        setNbEmployes(dataEmploye.length);
+                    }
 
                     const responsePrestation = await axiosPrivate.get(`/etablissements/${data[i].id}/prestations`);
                     const dataPrestation = responsePrestation['data']['hydra:member'];
-                    setNbPrestations(nbPrestations + dataPrestation.length);
+                    if (dataPrestation.length > 0) {
+                        setNbPrestations(dataPrestation.length);
+                    }
 
                     const responseReservation = await axiosPrivate.get(`/etablissements/${data[i].id}/reservations`);
                     const dataReservation = responseReservation['data']['hydra:member'];
-                    setNbReservations(nbReservations + dataReservation.length);
+                    if (dataReservation.length > 0) {
+                        setNbReservations(nbReservations + dataReservation.length);
+                    }
                 }
 
                 setNbEtablissements(data.length);

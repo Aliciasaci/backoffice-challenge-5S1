@@ -43,7 +43,9 @@ const CrudEmploye = () => {
                 for (let i = 0; i < dataEtablissement.length; i++) {
                     const responseEmploye = await axiosPrivate.get(`/etablissements/${dataEtablissement[i].id}/employes`);
                     const dataEmploye = responseEmploye['data']['hydra:member'];
-                    setEmployes(dataEmploye);
+                    if (dataEmploye.length > 0) {
+                        setEmployes(employes.concat(dataEmploye));
+                    }
                 }
             } catch (error) {
                 console.log("error", error);
@@ -268,15 +270,15 @@ const CrudEmploye = () => {
 
     const employeDialogFooter = (employe) => (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={() => saveEmploye(employe)} />
+            <Button label="Annuler" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Valider" icon="pi pi-check" text onClick={() => saveEmploye(employe)} />
         </>
     );
 
     const deleteEmployeDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteEmployeDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={() => deleteEmploye(employe)} />
+            <Button label="Non" icon="pi pi-times" text onClick={hideDeleteEmployeDialog} />
+            <Button label="Oui" icon="pi pi-check" text onClick={() => deleteEmploye(employe)} />
         </>
     );
     

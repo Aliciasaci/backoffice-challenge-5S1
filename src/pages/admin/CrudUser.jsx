@@ -253,8 +253,8 @@ const CrudUser = () => {
 
     const deleteUserDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteUserDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={() => deleteUser(user)} />
+            <Button label="Non" icon="pi pi-times" text onClick={hideDeleteUserDialog} />
+            <Button label="Oui" icon="pi pi-check" text onClick={() => deleteUser(user)} />
         </>
     );
     

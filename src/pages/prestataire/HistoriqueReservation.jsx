@@ -25,7 +25,10 @@ const HistoriqueReservation = () => {
                 for (let i = 0; i < data.length; i++) {
                     const responseReservation = await axiosPrivate.get(`/etablissements/${data[i].id}/reservations`);
                     const dataReservation = responseReservation['data']['hydra:member'];
-                    setReservations(dataReservation);
+                    if (dataReservation.length > 0) {
+                        setReservations(dataReservation);
+                    }
+                    
                 }
             } catch (error) {
                 console.log("error", error);

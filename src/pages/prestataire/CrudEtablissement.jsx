@@ -313,8 +313,8 @@ const CrudEtablissement = () => {
 
     const etablissementDialogFooter = (etablissement) => (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={() => saveEtablissement(etablissement)} />
+            <Button label="Annuler" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Valider" icon="pi pi-check" text onClick={() => saveEtablissement(etablissement)} />
         </>
     );
 
@@ -326,8 +326,8 @@ const CrudEtablissement = () => {
 
     const deleteEtablissementDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteEtablissementDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={() => deleteEtablissement(etablissement)} />
+            <Button label="Non" icon="pi pi-times" text onClick={hideDeleteEtablissementDialog} />
+            <Button label="Oui" icon="pi pi-check" text onClick={() => deleteEtablissement(etablissement)} />
         </>
     );
     

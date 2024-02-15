@@ -36,7 +36,7 @@ function App() {
                   }
                 >
                   <Route
-                    path="/"
+                    path="/backoffice-challenge-5S1/"
                     element={
                       <Layout>
                         <DashboardWrapper />
@@ -124,7 +124,7 @@ function App() {
                 </Route>
               </Route>
               <Route
-                path="/login"
+                path="/backoffice-challenge-5S1/login"
                 element={
                   <SimpleLayout>
                     <LogIn />

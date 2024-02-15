@@ -4,6 +4,7 @@ import { LayoutContext } from "./context/layoutcontext.jsx";
 import { MenuProvider } from "./context/menucontext";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import { Divider } from "primereact/divider";
 
 const AppMenu = () => {
   const { layoutConfig } = useContext(LayoutContext);
@@ -88,7 +89,7 @@ const AppMenu = () => {
       >
         Bienvenue {auth?.nom} !
       </span>
-
+      <Divider />
       <ul className="layout-menu">
         {model.map((item, i) => {
           return !item.seperator ? (

@@ -29,7 +29,7 @@ jobs:
           npm install
           npm install -g gh-pages --save-dev
           
-      - run : echo $VITE_SERVER_URL
+      - run : echo ${{ env.VITE_SERVER_URL }}
       - name: Deploy
         run: |
           git config --global user.name alicia

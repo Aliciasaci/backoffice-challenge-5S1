@@ -11,7 +11,7 @@ export const LogOut = () => {
     localStorage.removeItem("auth");
     localStorage.removeItem("chartData");
     setAuth(null);
-    navigate("/login");
+    navigate("/backoffice-challenge-5S1/login");
   };
   return (
     <Button

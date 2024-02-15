@@ -1,0 +1,40 @@
+name: Deploy | CD
+
+on:
+  workflow_run:
+    workflows: ["Build on PUSH | CI"]
+    branches: ["main"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm install -g gh-pages --save-dev
+
+      - name: Deploy
+        run: |
+          git config --global user.name alicia
+          git config --global user.email lyciiasci@gmail.com
+          git remote set-url origin https://${{ secrets.ACTIONS_DEPLOY_ACCESS_TOKEN }}@github.com/${{ github.repository }}
+          npm run deploy
+        env:
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'

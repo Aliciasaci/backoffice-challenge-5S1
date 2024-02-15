@@ -30,7 +30,7 @@ jobs:
           npm install -g gh-pages --save-dev
           
       - run : |
-          echo "Hello ${{ env.VITE_SERVER_URL }}"
+          echo "Hello ${{ vars.VITE_SERVER_URL }}"
           echo "Hello $user_name"
           echo $user_name
         env:

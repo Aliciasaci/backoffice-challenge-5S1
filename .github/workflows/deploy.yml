@@ -6,7 +6,9 @@ on:
     branches: ["master"]
     types:
       - completed
-
+env: 
+  VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest

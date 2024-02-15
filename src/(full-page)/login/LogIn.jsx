@@ -147,6 +147,7 @@ const LoginPage = () => {
                 className="w-full mb-5"
                 inputClassName="w-full p-3 md:w-30rem"
               ></Password>
+              <div className="flex align-items-center justify-content-between mb-5 gap-5"></div>
               <Button
                 label="Se connecter"
                 className="w-full p-3 text-xl"

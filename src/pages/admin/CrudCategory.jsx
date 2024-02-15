@@ -177,15 +177,15 @@ const CrudCategory = () => {
 
     const categoryDialogFooter = (category) => (
         <>
-            <Button label="Cancel" icon="pi pi-times" text onClick={hideDialog} />
-            <Button label="Save" icon="pi pi-check" text onClick={() => saveCategory(category)} />
+            <Button label="Annuler" icon="pi pi-times" text onClick={hideDialog} />
+            <Button label="Valider" icon="pi pi-check" text onClick={() => saveCategory(category)} />
         </>
     );
 
     const deleteCategoryDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeleteCategoryDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={() => deleteCategory(category)} />
+            <Button label="Non" icon="pi pi-times" text onClick={hideDeleteCategoryDialog} />
+            <Button label="Oui" icon="pi pi-check" text onClick={() => deleteCategory(category)} />
         </>
     );
     

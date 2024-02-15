@@ -46,9 +46,11 @@ const CrudPrestation = () => {
             try {
                 const dataEtablissement = await fetchEtablissements();
                 for (let i = 0; i < dataEtablissement.length; i++) {
-                    const responseEmploye = await axiosPrivate.get(`/etablissements/${dataEtablissement[i].id}/prestations`);
-                    const dataEmploye = responseEmploye['data']['hydra:member'];
-                    setPrestations(dataEmploye);
+                    const responsePrestation = await axiosPrivate.get(`/etablissements/${dataEtablissement[i].id}/prestations`);
+                    const dataPrestation = responsePrestation['data']['hydra:member'];
+                    if (dataPrestation.length > 0) {
+                        setPrestations(prestations.concat(dataPrestation));
+                    }
                 }   
             } catch (error) {
                 console.log("error", error);
@@ -303,8 +305,8 @@ const CrudPrestation = () => {
 
     const deletePrestationDialogFooter = (
         <>
-            <Button label="No" icon="pi pi-times" text onClick={hideDeletePrestationDialog} />
-            <Button label="Yes" icon="pi pi-check" text onClick={() => deletePrestation(prestation)} />
+            <Button label="Non" icon="pi pi-times" text onClick={hideDeletePrestationDialog} />
+            <Button label="Oui" icon="pi pi-check" text onClick={() => deletePrestation(prestation)} />
         </>
     );
     

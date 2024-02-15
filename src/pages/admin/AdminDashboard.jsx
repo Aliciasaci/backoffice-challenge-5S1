@@ -54,7 +54,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         const countEtablissements = async () => {
             try {
-                const response = await axiosPrivate.get('/etablissements/');
+                const response = await axiosPrivate.get('/etablissements');
                 const data = response['data']['hydra:member'];
                 setNbEtablissements(data.length);
             } catch (error) {
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
 
         const countPrestations = async () => {
             try {
-                const response = await axiosPrivate.get('/prestations/');
+                const response = await axiosPrivate.get('/prestations');
                 const data = response['data']['hydra:member'];
                 setNbPrestations(data.length);
             }

@@ -124,7 +124,7 @@ function App() {
                 </Route>
               </Route>
               <Route
-                path="/login"
+                path="/backoffice-challenge-5S1/login"
                 element={
                   <SimpleLayout>
                     <LogIn />

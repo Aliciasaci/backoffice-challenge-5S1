@@ -24,7 +24,7 @@ const AppTopbar = forwardRef(function AppTopbar(props, ref) {
   return (
     <div className="layout-topbar space-between">
       <div className="flex">
-        <Link href="/" className="layout-topbar-logo">
+        <Link href="/backoffice-challenge-5S1/" className="layout-topbar-logo">
           {/* <img src="" width="47.22px" height={'35px'} widt={'true'} alt="logo" /> */}
           <span>PICKME</span>
         </Link>

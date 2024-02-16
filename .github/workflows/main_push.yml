@@ -6,6 +6,32 @@ on:
       - master
 
 jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    strategy:
+        matrix:
+          node-version: [18.x]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+            node-version: ${{ matrix.node-version }}
+            cache: "npm"
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          eslint: true
+          
   build:
     runs-on: ubuntu-latest
 

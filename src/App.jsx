@@ -21,6 +21,7 @@ import ValidationEtablissement from "./pages/admin/ValidationEtablissement.jsx";
 
 function App() {
   const API_KEY = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY;
+  alert("ici");
   return (
     <>
       <LoadScript googleMapsApiKey={API_KEY} libraries={["places"]}>

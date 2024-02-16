@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes } from "react-router-dom";
 import { LayoutProvider } from "./layout/context/layoutcontext.jsx";
 import Layout from "./layout/layout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";

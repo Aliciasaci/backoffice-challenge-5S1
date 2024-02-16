@@ -3,12 +3,10 @@ name: Deploy | CD
 on:
   workflow_run:
     workflows: ["Build on PUSH | CI"]
-    branches: ["master"]
+    branches: ["main"]
     types:
       - completed
-env: 
-  VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}
-  
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,26 +16,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: master
+          ref: main
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
-          cache: 'npm'
+          node-version: "18.x"
+          cache: "npm"
 
       - name: Install dependencies
         run: |
           npm install
           npm install -g gh-pages --save-dev
-          
-      - run : |
-          echo "Hello ${{ vars.VITE_SERVER_URL }}"
-          echo "Hello $user_name"
-          echo $user_name
-        env:
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
 
       - name: Deploy
         run: |
@@ -46,5 +36,6 @@ jobs:
           git remote set-url origin https://${{ secrets.ACTIONS_DEPLOY_ACCESS_TOKEN }}@github.com/${{ github.repository }}
           npm run deploy
         env:
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          VITE_SERVER_URL: ${{ vars.VITE_SERVER_URL }}

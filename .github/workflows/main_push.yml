@@ -1,4 +1,4 @@
-name: Build on PUSH | CI
+name: Build on Merge | CI
 
 on:
   push:

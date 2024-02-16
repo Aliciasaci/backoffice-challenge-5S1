@@ -11,8 +11,8 @@ const AccessDeniedPage = () => {
   const { layoutConfig } = useContext(LayoutContext);
   const location = useLocation();
   const { auth } = useAuth();
-  const from = location.state?.from?.pathname || "/";
-  const to = auth?.accessToken ? from : "/login";
+  const from = location.state?.from?.pathname || "/backoffice-challenge-5S1/";
+  const to = auth?.accessToken ? from : "/backoffice-challenge-5S1/login";
   const label = auth?.accessToken ? "Retour" : "Se connecter";
 
   const containerClassName = classNames(

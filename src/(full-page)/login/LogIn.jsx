@@ -1,5 +1,4 @@
-import React, { useContext, useState, useRef } from "react";
-import { Checkbox } from "primereact/checkbox";
+import { useContext, useState, useRef } from "react";
 import { Button } from "primereact/button";
 import { Password } from "primereact/password";
 import { LayoutContext } from "../../layout/context/layoutcontext.jsx";
@@ -15,9 +14,8 @@ import { ProgressSpinner } from "primereact/progressspinner";
 const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [checked, setChecked] = useState(false);
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || "/backoffice-challenge-5S1/";
   const { setAuth } = useAuth();
   const toast = useRef(null);
   const { layoutConfig } = useContext(LayoutContext);
@@ -149,6 +147,7 @@ const LoginPage = () => {
                 className="w-full mb-5"
                 inputClassName="w-full p-3 md:w-30rem"
               ></Password>
+              <div className="flex align-items-center justify-content-between mb-5 gap-5"></div>
               <Button
                 label="Se connecter"
                 className="w-full p-3 text-xl"

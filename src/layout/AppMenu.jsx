@@ -4,8 +4,8 @@ import { LayoutContext } from "./context/layoutcontext.jsx";
 import { MenuProvider } from "./context/menucontext";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { Divider } from 'primereact/divider';
-        
+import { Divider } from "primereact/divider";
+
 const AppMenu = () => {
   const { layoutConfig } = useContext(LayoutContext);
   const { auth } = useAuth();
@@ -13,11 +13,16 @@ const AppMenu = () => {
   const model = [
     {
       label: "Accueil",
-      items: [{ label: "Tableau de bord", icon: "pi pi-fw pi-home", to: "/" }],
+      items: [
+        {
+          label: "Tableau de bord",
+          icon: "pi pi-fw pi-home",
+          to: "/backoffice-challenge-5S1/",
+        },
+      ],
     },
   ];
 
-  // if in the roles array there is a role that is equal to "ROLE_ADMIN" then add the admin gestion menu to the model
   if (userRole && userRole.includes("ROLE_ADMIN")) {
     model.push({
       label: "Admin Gestion",
@@ -25,22 +30,22 @@ const AppMenu = () => {
         {
           label: "Utilisateurs",
           icon: "pi pi-fw pi-table",
-          to: "/admin/users",
+          to: "/backoffice-challenge-5S1/admin/users",
         },
         {
           label: "Etablissements",
           icon: "pi pi-fw pi-table",
-          to: "/admin/etablissements",
+          to: "/backoffice-challenge-5S1/admin/etablissements",
         },
         {
           label: "Catégories",
           icon: "pi pi-fw pi-table",
-          to: "/admin/categories",
+          to: "/backoffice-challenge-5S1/admin/categories",
         },
         {
           label: "Demandes Prestataire",
           icon: "pi pi-fw pi-table",
-          to: "/admin/demandes",
+          to: "/backoffice-challenge-5S1/admin/demandes",
         },
       ],
     });
@@ -51,22 +56,22 @@ const AppMenu = () => {
         {
           label: "Employes",
           icon: "pi pi-fw pi-table",
-          to: "/prestataire/employes",
+          to: "/backoffice-challenge-5S1/prestataire/employes",
         },
         {
           label: "Etablissements",
           icon: "pi pi-fw pi-table",
-          to: "/prestataire/etablissements",
+          to: "/backoffice-challenge-5S1/prestataire/etablissements",
         },
         {
           label: "Prestations",
           icon: "pi pi-fw pi-table",
-          to: "/prestataire/prestations",
+          to: "/backoffice-challenge-5S1/prestataire/prestations",
         },
         {
           label: "Historique Réservations",
           icon: "pi pi-fw pi-table",
-          to: "/prestataire/reservations",
+          to: "/backoffice-challenge-5S1/prestataire/reservations",
         },
       ],
     });
@@ -74,10 +79,14 @@ const AppMenu = () => {
 
   return (
     <MenuProvider>
-      <span style={{ fontSize: '20px',
-      color: '#8B5CF6',
-      fontWeight: 'bold',
-      textAlign: 'center'}}>
+      <span
+        style={{
+          fontSize: "20px",
+          color: "#8B5CF6",
+          fontWeight: "bold",
+          textAlign: "center",
+        }}
+      >
         Bienvenue {auth?.nom} !
       </span>
       <Divider />

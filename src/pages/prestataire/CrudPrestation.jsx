@@ -105,7 +105,7 @@ const CrudPrestation = () => {
             let _prestations = [...prestations];
             let _prestation = { ...prestation };
             if (prestation.id) {
-                const response = await axiosPrivate.patch(`http://localhost:8000/api/prestations/${prestation.id}`, {
+                const response = await axiosPrivate.patch(`/prestations/${prestation.id}`, {
                     titre: prestation.titre,
                     duree: prestation.duree,
                     prix: prestation.prix,
@@ -123,7 +123,7 @@ const CrudPrestation = () => {
 
                 toast.current.show({ severity: 'success', summary: 'Succès', detail: 'Prestation modifiée', life: 3000 });
             } else {
-                const response = await axiosPrivate.post('http://localhost:8000/api/prestations', {
+                const response = await axiosPrivate.post('/prestations', {
                     titre: prestation.titre,
                     duree: prestation.duree,
                     prix: prestation.prix,
@@ -162,7 +162,7 @@ const CrudPrestation = () => {
     };
 
     const deletePrestation = async (prestation) => {
-        const response = axiosPrivate.delete(`http://localhost:8000/api/prestations/${prestation.id}`);
+        const response = axiosPrivate.delete(`/prestations/${prestation.id}`);
         let _prestations = prestations.filter((val) => val.id !== prestation.id);
         setPrestations(_prestations);
         setDeletePrestationDialog(false);

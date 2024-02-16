@@ -3,7 +3,7 @@ name: Deploy | CD
 on:
   workflow_run:
     workflows: ["Build on PUSH | CI"]
-    branches: ["main"]
+    branches: ["master"]
     types:
       - completed
 
@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          ref: main
+          ref: master
 
       - name: Set up Node.js
         uses: actions/setup-node@v3

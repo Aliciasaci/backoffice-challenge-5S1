@@ -39,6 +39,7 @@ const CrudUser = () => {
             try {
                 const response = await axiosPrivate.get(`/users`);
                 const data = response['data']['hydra:member'];
+                console.log(data)
                 setUsers(data);
             } catch (error) {
                 console.log("error", error);
@@ -68,7 +69,7 @@ const CrudUser = () => {
     const saveUser = async (user) => {
         setSubmitted(true);
         setIsEdit(false);
-        user.roles = [user.roles];
+        user.roles = user.roles;
         if (user.nom.trim()) {
             let _users = [...users];
             let _user = { ...user };

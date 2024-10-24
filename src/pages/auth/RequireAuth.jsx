@@ -19,7 +19,7 @@ const RequireAuth = ({ allowedRoles }) => {
         </SimpleLayout>
       ) : (
         <Navigate
-          to="/backoffice-challenge-5S1/login"
+          to="/login"
           state={{ from: location }}
           replace
         />

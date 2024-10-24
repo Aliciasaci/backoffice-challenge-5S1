@@ -8,5 +8,5 @@ export default defineConfig({
     outDir: 'build',
     emptyOutDir: true
   },
-  base: "/backoffice-challenge-5S1/"
+  base: "/"
 })

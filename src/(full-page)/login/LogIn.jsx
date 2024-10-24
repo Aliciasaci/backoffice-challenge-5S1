@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const location = useLocation();
-  const from = location.state?.from?.pathname || "/backoffice-challenge-5S1/";
+  const from = location.state?.from?.pathname || "/";
   const { setAuth } = useAuth();
   const toast = useRef(null);
   const { layoutConfig } = useContext(LayoutContext);

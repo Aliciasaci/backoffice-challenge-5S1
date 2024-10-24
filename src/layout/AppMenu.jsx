@@ -17,7 +17,7 @@ const AppMenu = () => {
         {
           label: "Tableau de bord",
           icon: "pi pi-fw pi-home",
-          to: "/backoffice-challenge-5S1/",
+          to: "/",
         },
       ],
     },
@@ -30,22 +30,22 @@ const AppMenu = () => {
         {
           label: "Utilisateurs",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/admin/users",
+          to: "/admin/users",
         },
         {
           label: "Etablissements",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/admin/etablissements",
+          to: "/admin/etablissements",
         },
         {
           label: "Catégories",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/admin/categories",
+          to: "/admin/categories",
         },
         {
           label: "Demandes Prestataire",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/admin/demandes",
+          to: "/admin/demandes",
         },
       ],
     });
@@ -56,22 +56,22 @@ const AppMenu = () => {
         {
           label: "Employes",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/prestataire/employes",
+          to: "/prestataire/employes",
         },
         {
           label: "Etablissements",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/prestataire/etablissements",
+          to: "/prestataire/etablissements",
         },
         {
           label: "Prestations",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/prestataire/prestations",
+          to: "/prestataire/prestations",
         },
         {
           label: "Historique Réservations",
           icon: "pi pi-fw pi-table",
-          to: "/backoffice-challenge-5S1/prestataire/reservations",
+          to: "/prestataire/reservations",
         },
       ],
     });

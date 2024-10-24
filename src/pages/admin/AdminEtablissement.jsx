@@ -33,6 +33,7 @@ const AdminEtablissement = () => {
             try {
                 const response = await axiosPrivate.get('/etablissements');
                 const data = response['data']['hydra:member'];
+                console.log(data)
                 setEtablissements(data);
             } catch (error) {
                 console.log("error", error);

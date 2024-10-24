@@ -12,7 +12,7 @@ const AdminDashboard = () => {
   const axiosPrivate = useAxiosPrivate();
 
   const lineData = {
-    labels: ["Janvier", "Février", "Mars", "Avril", "Mai", "June", "Juillet"],
+    labels: ["June", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
     datasets: [
       {
         label: "Utlisateurs crées",
@@ -96,7 +96,7 @@ const AdminDashboard = () => {
 
     const chart = async () => {
       let dataUsersCreatedByMonth = [];
-      for (let i = 1; i <= 7; i++) {
+      for (let i = 6; i <= 12; i++) {
         const nbUsersCreatedByMonth = await countUsersCreatedByMonth(i);
         dataUsersCreatedByMonth.push(nbUsersCreatedByMonth);
       }

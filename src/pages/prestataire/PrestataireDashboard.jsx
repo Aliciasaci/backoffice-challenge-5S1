@@ -65,54 +65,67 @@ const PrestataireDashboard = () => {
   useEffect(() => {
     const countEtablissements = async () => {
       try {
-        const response = await axiosPrivate.get(
-          `/prestataires/${id}/etablissements`
-        );
-        const data = response["data"]["hydra:member"];
-        for (let i = 0; i < data.length; i++) {
-          const responseEmploye = await axiosPrivate.get(
-            `/etablissements/${data[i].id}/employes`
-          );
-          const dataEmploye = responseEmploye["data"]["hydra:member"];
-          setNbEmployes(nbEmployes + dataEmploye.length);
+          const response = await axiosPrivate.get(`/prestataires/${id}/etablissements`);
+          const data = response["data"]["hydra:member"];
+          
+          let totalEmployes = 0;
+          let totalPrestations = 0;
+          let totalReservations = 0;
+  
+          for (let i = 0; i < data.length; i++) {
+              // Fetch employees
+              try {
+                  const responseEmploye = await axiosPrivate.get(`/etablissements/${data[i].id}/employes`);
+                  const dataEmploye = responseEmploye["data"]["hydra:member"];
+                  totalEmployes += dataEmploye.length;
+              } catch (error) {
+                  console.error(`Error fetching employees for etablissement ${data[i].id}:`, error);
+              }
+  
+              // Fetch prestations
+              try {
+                  const responsePrestation = await axiosPrivate.get(`/etablissements/${data[i].id}/prestations`);
+                  const dataPrestation = responsePrestation["data"]["hydra:member"];
+                  totalPrestations += dataPrestation.length;
+              } catch (error) {
+                  console.error(`Error fetching prestations for etablissement ${data[i].id}:`, error);
+              }
+  
+              // Fetch reservations
+              try {
+                  const responseReservation = await axiosPrivate.get(`/etablissements/${data[i].id}/reservations`);
+                  const dataReservation = responseReservation["data"]["hydra:member"];
+                  totalReservations += dataReservation.length;
+              } catch (error) {
+                  console.error(`Error fetching reservations for etablissement ${data[i].id}:`, error);
+              }
+          }
 
-          const responsePrestation = await axiosPrivate.get(
-            `/etablissements/${data[i].id}/prestations`
-          );
-          const dataPrestation = responsePrestation["data"]["hydra:member"];
-          setNbPrestations(nbPrestations + dataPrestation.length);
-
-          const responseReservation = await axiosPrivate.get(
-            `/etablissements/${data[i].id}/reservations`
-          );
-          const dataReservation = responseReservation["data"]["hydra:member"];
-          setNbReservations(nbReservations + dataReservation.length);
-        }
-
-        setNbEtablissements(data.length);
-
-        chart(data);
+          setNbEmployes(totalEmployes);
+          setNbPrestations(totalPrestations);
+          setNbReservations(totalReservations);
+          setNbEtablissements(data.length);
+  
+          chart(data);
       } catch (error) {
-        console.log(error);
+          console.error("Error fetching etablissements:", error);
       }
     };
 
     const chart = async (listEtab) => {
       let dataReservationsByMonth = [];
       let dataReservationsCanceledByMonth = [];
-      for (let i = 1; i <= 7; i++) {
-        for (let k = 0; k < listEtab.length; k++) {
-          const nbReservationsByMonth = await countReservationsByMonth(
-            i,
-            listEtab[k].id
-          );
-          dataReservationsByMonth.push(nbReservationsByMonth);
 
-          const nbReservationsCanceledByMonth =
-            await countReservationsCanceledByMonth(i, listEtab[k].id);
-          dataReservationsCanceledByMonth.push(nbReservationsCanceledByMonth);
-        }
+      for (let i = 1; i <= 7; i++) {
+          for (let k = 0; k < listEtab.length; k++) {
+              const nbReservationsByMonth = await countReservationsByMonth(i, listEtab[k].id) || 0;
+              dataReservationsByMonth.push(nbReservationsByMonth);
+
+              const nbReservationsCanceledByMonth = await countReservationsCanceledByMonth(i, listEtab[k].id) || 0;
+              dataReservationsCanceledByMonth.push(nbReservationsCanceledByMonth);
+          }
       }
+
       setNbDataLine(dataReservationsByMonth);
       setNbDataLine2(dataReservationsCanceledByMonth);
     };
@@ -122,26 +135,24 @@ const PrestataireDashboard = () => {
 
   const countReservationsByMonth = async (month, id) => {
     try {
-      const response = await axiosPrivate.get(
-        `/etablissements/${id}/reservations?month=${month}`
-      );
-      const data = response["data"]["hydra:member"];
-      return data.length;
+        const response = await axiosPrivate.get(`/etablissements/${id}/reservations?month=${month}`);
+        const data = response["data"]["hydra:member"];
+        return data.length;
     } catch (error) {
-      console.log(error);
+        console.error(`Error fetching reservations for month ${month}, etablissement ${id}:`, error);
+        return 0; 
     }
   };
 
   const countReservationsCanceledByMonth = async (month, id) => {
-    try {
-      const response = await axiosPrivate.get(
-        `/etablissements/${id}/reservations?month=${month}&status=canceled`
-      );
-      const data = response["data"]["hydra:member"];
-      return data.length;
-    } catch (error) {
-      console.log(error);
-    }
+      try {
+          const response = await axiosPrivate.get(`/etablissements/${id}/reservations?month=${month}&status=canceled`);
+          const data = response["data"]["hydra:member"];
+          return data.length;
+      } catch (error) {
+          console.error(`Error fetching canceled reservations for month ${month}, etablissement ${id}:`, error);
+          return 0;
+      }
   };
 
   return (
